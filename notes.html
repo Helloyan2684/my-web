@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Yan2684 · 碎碎念 · 森林</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600&family=Noto+Serif+SC:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ==========================================================
+              全局重置 & 变量
+             ========================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* 日间模式 */
+            --bg-primary: #1a2a18;
+            --bg-secondary: rgba(20, 40, 20, 0.55);
+            --text-primary: #e8f0e0;
+            --text-secondary: rgba(200, 220, 190, 0.65);
+            --text-muted: rgba(180, 210, 170, 0.25);
+            --border-color: rgba(120, 180, 100, 0.08);
+            --card-bg: rgba(20, 40, 20, 0.45);
+            --card-hover: rgba(30, 60, 30, 0.50);
+            --shadow-color: rgba(0, 0, 0, 0.4);
+            --accent: #8aba7a;
+            --accent-glow: rgba(120, 200, 100, 0.08);
+            --input-bg: rgba(10, 30, 10, 0.4);
+            --light-ray: rgba(200, 230, 180, 0.04);
+            --light-ray-strong: rgba(220, 240, 200, 0.08);
+        }
+
+        /* 夜间模式 */
+        [data-theme="night"] {
+            --bg-primary: #0a0e0a;
+            --bg-secondary: rgba(10, 20, 10, 0.60);
+            --text-primary: #c8dcc0;
+            --text-secondary: rgba(160, 190, 150, 0.50);
+            --text-muted: rgba(140, 180, 130, 0.15);
+            --border-color: rgba(100, 160, 80, 0.04);
+            --card-bg: rgba(10, 25, 10, 0.50);
+            --card-hover: rgba(15, 35, 15, 0.55);
+            --shadow-color: rgba(0, 0, 0, 0.6);
+            --accent: #6a9a5a;
+            --accent-glow: rgba(80, 180, 60, 0.03);
+            --input-bg: rgba(5, 20, 5, 0.5);
+            --light-ray: rgba(100, 150, 80, 0.02);
+            --light-ray-strong: rgba(120, 170, 100, 0.04);
+        }
+
+        body {
+            font-family: 'Noto Serif SC', 'Quicksand', serif;
+            min-height: 100vh;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.8;
+            overflow-x: hidden;
+            position: relative;
+            transition: background 0.8s ease, color 0.8s ease;
+        }
+
+        /* ==========================================================
+              森林背景（动态丁达尔光效）
+             ========================================================== */
+        .forest-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+            background: 
+                /* 森林色块 - 深浅不一的绿色 */
+                radial-gradient(ellipse at 10% 80%, rgba(30, 60, 30, 0.4) 0%, transparent 50%),
+                radial-gradient(ellipse at 90% 70%, rgba(20, 50, 20, 0.3) 0%, transparent 40%),
+                radial-gradient(ellipse at 50% 100%, rgba(15, 40, 15, 0.5) 0%, transparent 60%),
+                /* 树影效果 - 竖条纹模拟树干 */
+                repeating-linear-gradient(
+                    90deg,
+                    transparent 0px,
+                    rgba(10, 30, 10, 0.05) 3px,
+                    transparent 6px,
+                    rgba(5, 20, 5, 0.03) 9px,
+                    transparent 12px
+                ),
+                /* 树冠光斑 */
+                radial-gradient(ellipse at 20% 30%, rgba(60, 120, 50, 0.06) 0%, transparent 40%),
+                radial-gradient(ellipse at 70% 25%, rgba(50, 110, 40, 0.04) 0%, transparent 35%),
+                radial-gradient(ellipse at 45% 45%, rgba(40, 100, 30, 0.03) 0%, transparent 50%);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+            transition: background 0.8s ease;
+        }
+
+        [data-theme="night"] .forest-bg {
+            background: 
+                radial-gradient(ellipse at 10% 80%, rgba(10, 30, 10, 0.5) 0%, transparent 50%),
+                radial-gradient(ellipse at 90% 70%, rgba(8, 25, 8, 0.4) 0%, transparent 40%),
+                radial-gradient(ellipse at 50% 100%, rgba(5, 20, 5, 0.6) 0%, transparent 60%),
+                repeating-linear-gradient(
+                    90deg,
+                    transparent 0px,
+                    rgba(5, 15, 5, 0.08) 3px,
+                    transparent 6px,
+                    rgba(3, 10, 3, 0.05) 9px,
+                    transparent 12px
+                ),
+                radial-gradient(ellipse at 20% 30%, rgba(30, 80, 20, 0.04) 0%, transparent 40%),
+                radial-gradient(ellipse at 70% 25%, rgba(25, 70, 15, 0.03) 0%, transparent 35%),
+                radial-gradient(ellipse at 45% 45%, rgba(20, 60, 10, 0.02) 0%, transparent 50%);
+        }
+
+        /* ===== 丁达尔光线 ===== */
+        .tyndall-rays {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .ray {
+            position: absolute;
+            top: -10%;
+            width: 2px;
+            background: linear-gradient(180deg, 
+                rgba(220, 240, 200, 0.15) 0%,
+                rgba(200, 230, 180, 0.06) 40%,
+                rgba(180, 220, 160, 0.02) 70%,
+                transparent 100%
+            );
+            transform-origin: top center;
+            animation: raySway 12s ease-in-out infinite alternate;
+            border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+        }
+
+        .ray::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -20px;
+            width: 44px;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent 0%,
+                rgba(220, 240, 200, 0.02) 30%,
+                rgba(200, 230, 180, 0.04) 50%,
+                rgba(220, 240, 200, 0.02) 70%,
+                transparent 100%
+            );
+            filter: blur(12px);
+        }
+
+        /* 多条光线不同角度和速度 */
+        .ray-1 { left: 15%; height: 70%; animation-duration: 14s; animation-delay: 0s; transform: rotate(-8deg); }
+        .ray-2 { left: 30%; height: 55%; animation-duration: 11s; animation-delay: -2s; transform: rotate(-3deg); }
+        .ray-3 { left: 45%; height: 80%; animation-duration: 16s; animation-delay: -5s; transform: rotate(2deg); }
+        .ray-4 { left: 58%; height: 50%; animation-duration: 13s; animation-delay: -8s; transform: rotate(6deg); }
+        .ray-5 { left: 72%; height: 65%; animation-duration: 15s; animation-delay: -3s; transform: rotate(-5deg); }
+        .ray-6 { left: 85%; height: 45%; animation-duration: 12s; animation-delay: -10s; transform: rotate(4deg); }
+
+        /* 更亮的主光线 */
+        .ray-main {
+            position: absolute;
+            top: -5%;
+            left: 38%;
+            width: 60px;
+            height: 75%;
+            background: linear-gradient(180deg, 
+                rgba(240, 255, 220, 0.12) 0%,
+                rgba(220, 245, 200, 0.04) 40%,
+                transparent 100%
+            );
+            filter: blur(30px);
+            transform: rotate(-2deg);
+            animation: rayPulse 8s ease-in-out infinite alternate;
+            border-radius: 50%;
+        }
+
+        .ray-main::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: inherit;
+            filter: blur(60px);
+            transform: scale(1.5);
+        }
+
+        @keyframes raySway {
+            0% { transform: rotate(-10deg) scaleX(1); opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { transform: rotate(10deg) scaleX(1.2); opacity: 0.5; }
+        }
+
+        @keyframes rayPulse {
+            0% { opacity: 0.3; transform: rotate(-4deg) scaleX(1); }
+            100% { opacity: 0.8; transform: rotate(2deg) scaleX(1.3); }
+        }
+
+        [data-theme="night"] .ray {
+            background: linear-gradient(180deg, 
+                rgba(150, 200, 130, 0.06) 0%,
+                rgba(130, 180, 110, 0.02) 40%,
+                transparent 100%
+            );
+        }
+
+        [data-theme="night"] .ray::after {
+            background: linear-gradient(90deg, 
+                transparent 0%,
+                rgba(150, 200, 130, 0.01) 30%,
+                rgba(130, 180, 110, 0.02) 50%,
+                rgba(150, 200, 130, 0.01) 70%,
+                transparent 100%
+            );
+        }
+
+        [data-theme="night"] .ray-main {
+            background: linear-gradient(180deg, 
+                rgba(150, 200, 130, 0.04) 0%,
+                rgba(130, 180, 110, 0.015) 40%,
+                transparent 100%
+            );
+        }
+
+        /* ==========================================================
+              浮动光点（模拟萤火虫）
+             ========================================================== */
+        .firefly-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .firefly {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: rgba(200, 230, 150, 0.5);
+            box-shadow: 0 0 15px rgba(180, 220, 130, 0.2), 0 0 40px rgba(160, 210, 110, 0.05);
+            animation: fireflyFloat 20s ease-in-out infinite;
+        }
+
+        @keyframes fireflyFloat {
+            0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
+            10% { opacity: 0.8; }
+            40% { transform: translate(60px, -80px) scale(1.2); }
+            70% { transform: translate(-30px, -160px) scale(0.8); opacity: 0.6; }
+            100% { transform: translate(20px, -250px) scale(0.3); opacity: 0; }
+        }
+
+        [data-theme="night"] .firefly {
+            background: rgba(180, 230, 130, 0.6);
+            box-shadow: 0 0 20px rgba(160, 220, 110, 0.3), 0 0 50px rgba(140, 200, 90, 0.08);
+        }
+
+        /* ==========================================================
+              页面主容器
+             ========================================================== */
+        .container {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 100px 24px 60px;
+        }
+
+        /* ==========================================================
+              导航栏
+             ========================================================== */
+        .nav-bar {
+            position: fixed;
+            top: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(92%, 720px);
+            background: var(--bg-secondary);
+            backdrop-filter: blur(18px);
+            border-radius: 40px;
+            padding: 10px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 30px var(--shadow-color);
+            z-index: 100;
+            transition: background 0.6s ease, border-color 0.6s ease;
+        }
+
+        .nav-bar .logo {
+            font-family: 'Noto Serif SC', serif;
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: var(--accent);
+            letter-spacing: 1px;
+        }
+
+        .nav-bar .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-bar a {
+            text-decoration: none;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            padding: 4px 14px;
+            border-radius: 24px;
+            transition: all 0.25s ease;
+            border: 1px solid transparent;
+        }
+
+        .nav-bar a:hover {
+            background: var(--accent-glow);
+            color: var(--text-secondary);
+            border-color: var(--border-color);
+        }
+
+        /* 昼夜切换按钮 */
+        .theme-toggle {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            padding: 6px 16px;
+            cursor: pointer;
+            font-size: 1.0rem;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .theme-toggle:hover {
+            background: var(--accent-glow);
+            border-color: var(--accent);
+            transform: scale(1.03);
+        }
+
+        .theme-toggle .icon-sun { display: inline-block; }
+        .theme-toggle .icon-moon { display: none; }
+
+        [data-theme="night"] .theme-toggle .icon-sun { display: none; }
+        [data-theme="night"] .theme-toggle .icon-moon { display: inline-block; }
+
+        /* 音乐控制按钮 */
+        .music-toggle {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            padding: 6px 16px;
+            cursor: pointer;
+            font-size: 1.0rem;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .music-toggle:hover {
+            background: var(--accent-glow);
+            border-color: var(--accent);
+            transform: scale(1.03);
+        }
+
+        /* ==========================================================
+              解锁欢迎页
+             ========================================================== */
+        #lockScreen {
+            min-height: 60vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            animation: fadeIn 1s ease;
+        }
+
+        #lockScreen .lock-icon {
+            font-size: 4.8rem;
+            margin-bottom: 16px;
+            filter: drop-shadow(0 0 40px rgba(120, 200, 100, 0.15));
+        }
+
+        #lockScreen h2 {
+            font-family: 'Noto Serif SC', serif;
+            font-weight: 300;
+            font-size: 2.6rem;
+            color: var(--text-primary);
+            letter-spacing: 6px;
+            margin-bottom: 8px;
+        }
+
+        #lockScreen h2 span {
+            color: var(--accent);
+        }
+
+        #lockScreen .lock-desc {
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 300;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            letter-spacing: 3px;
+            margin-bottom: 28px;
+        }
+
+        .lock-form {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 420px;
+            width: 100%;
+        }
+
+        .lock-form input {
+            flex: 1;
+            min-width: 180px;
+            padding: 12px 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.95rem;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .lock-form input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 30px var(--accent-glow);
+        }
+
+        .lock-form input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .lock-form .lock-btn {
+            padding: 12px 32px;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            background: var(--accent-glow);
+            color: var(--text-secondary);
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .lock-form .lock-btn:hover {
+            background: rgba(120, 200, 100, 0.10);
+            border-color: var(--accent);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+        }
+
+        .lock-error {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.85rem;
+            color: rgba(220, 120, 100, 0.5);
+            min-height: 28px;
+            margin-top: 12px;
+        }
+
+        .lock-hint {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 16px;
+            letter-spacing: 1px;
+        }
+
+        .lock-hint strong {
+            color: var(--accent);
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ==========================================================
+              主内容（解锁后显示）
+             ========================================================== */
+        #mainContent {
+            display: none;
+            animation: fadeIn 0.8s ease;
+        }
+
+        /* ===== 欢迎语 ===== */
+        .welcome-section {
+            text-align: center;
+            padding: 30px 0 40px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 40px;
+        }
+
+        .welcome-section .welcome-icon {
+            font-size: 3.2rem;
+            margin-bottom: 8px;
+        }
+
+        .welcome-section h2 {
+            font-family: 'Noto Serif SC', serif;
+            font-weight: 300;
+            font-size: 2.2rem;
+            color: var(--text-primary);
+            letter-spacing: 4px;
+        }
+
+        .welcome-section h2 span {
+            color: var(--accent);
+        }
+
+        .welcome-section .welcome-sub {
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 300;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            margin-top: 4px;
+        }
+
+        /* ==========================================================
+              日常碎碎念
+             ========================================================== */
+        .diary-section {
+            margin-bottom: 40px;
+        }
+
+        .diary-section .section-title {
+            font-family: 'Noto Serif SC', serif;
+            font-weight: 400;
+            font-size: 1.3rem;
+            color: var(--text-primary);
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .diary-section .section-title .line {
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+
+        .diary-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 24px 28px;
+            margin-bottom: 14px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .diary-card:hover {
+            background: var(--card-hover);
+            border-color: var(--accent);
+            transform: translateX(4px);
+        }
+
+        .diary-card .diary-date {
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 300;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+        }
+
+        .diary-card .diary-title {
+            font-family: 'Noto Serif SC', serif;
+            font-weight: 500;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            margin: 2px 0 6px;
+        }
+
+        .diary-card .diary-content {
+            font-family: 'Quicksand', 'Noto Serif SC', sans-serif;
+            font-weight: 300;
+            font-size: 0.92rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .diary-card .diary-tag {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 2px 14px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-family: 'Quicksand', sans-serif;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+        }
+
+        /* ==========================================================
+              留言板
+             ========================================================== */
+        .message-section {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 32px 36px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 30px var(--shadow-color);
+            transition: background 0.6s ease, border-color 0.6s ease;
+        }
+
+        .message-section .section-title {
+            font-family: 'Noto Serif SC', serif;
+            font-weight: 400;
+            font-size: 1.3rem;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            letter-spacing: 2px;
+        }
+
+        .message-section .section-desc {
+            font-family: 'Quicksand', 'Noto Serif SC', sans-serif;
+            font-weight: 300;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        .message-form {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .message-form .form-row {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .message-form .form-row input {
+            flex: 1;
+            min-width: 160px;
+        }
+
+        .message-form input,
+        .message-form textarea {
+            padding: 12px 18px;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            font-family: 'Quicksand', 'Noto Serif SC', sans-serif;
+            font-size: 0.92rem;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .message-form input::placeholder,
+        .message-form textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        .message-form input:focus,
+        .message-form textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 30px var(--accent-glow);
+        }
+
+        .message-form textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .message-form .submit-btn {
+            padding: 12px 32px;
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            background: var(--accent-glow);
+            color: var(--text-secondary);
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            align-self: flex-start;
+            letter-spacing: 1px;
+        }
+
+        .message-form .submit-btn:hover {
+            background: rgba(120, 200, 100, 0.10);
+            border-color: var(--accent);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+        }
+
+        .message-list {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .message-list .list-title {
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 300;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+            letter-spacing: 2px;
+        }
+
+        .message-item {
+            background: var(--input-bg);
+            border-radius: 16px;
+            padding: 14px 20px;
+            margin-bottom: 10px;
+            border-left: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .message-item:hover {
+            border-left-color: var(--accent);
+            background: var(--card-hover);
+        }
+
+        .message-item .msg-name {
+            font-family: 'Noto Serif SC', serif;
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+        }
+
+        .message-item .msg-time {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-left: 12px;
+        }
+
+        .message-item .msg-content {
+            font-family: 'Quicksand', 'Noto Serif SC', sans-serif;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 4px;
+            line-height: 1.7;
+        }
+
+        /* ==========================================================
+              返回链接
+             ========================================================== */
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 4px;
+            transition: all 0.3s ease;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        .back-link:hover {
+            color: var(--text-secondary);
+            border-bottom-color: var(--accent);
+        }
+
+        /* ==========================================================
+              页脚
+             ========================================================== */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: var(--text-muted);
+            font-size: 0.65rem;
+            font-family: 'Quicksand', sans-serif;
+            border-top: 1px solid var(--border-color);
+            letter-spacing: 2px;
+            opacity: 0.4;
+        }
+
+        /* ==========================================================
+              滚动淡入
+             ========================================================== */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ==========================================================
+              响应式
+             ========================================================== */
+        @media (max-width: 600px) {
+            .container { padding: 80px 16px 40px; }
+            .nav-bar { padding: 8px 16px; width: 96%; flex-wrap: wrap; gap: 6px; }
+            .nav-bar .logo { font-size: 1.0rem; }
+            .nav-bar .nav-right { gap: 6px; flex-wrap: wrap; }
+            .nav-bar a { font-size: 0.75rem; padding: 4px 10px; }
+            .theme-toggle { font-size: 0.8rem; padding: 4px 12px; }
+            .music-toggle { font-size: 0.8rem; padding: 4px 12px; }
+            
+            #lockScreen .lock-icon { font-size: 3.6rem; }
+            #lockScreen h2 { font-size: 1.8rem; }
+            .lock-form { flex-direction: column; }
+            .lock-form input { min-width: auto; }
+            .lock-form .lock-btn { width: 100%; text-align: center; }
+            
+            .welcome-section h2 { font-size: 1.6rem; }
+            .diary-card { padding: 18px 20px; }
+            .message-section { padding: 24px 20px; }
+            .message-form .form-row { flex-direction: column; }
+            .message-form .form-row input { min-width: auto; }
+            .message-form .submit-btn { align-self: stretch; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==========================================================
+          森林背景（丁达尔光效）
+         ========================================================== -->
+    <div class="forest-bg"></div>
+
+    <!-- ==========================================================
+          丁达尔光线
+         ========================================================== -->
+    <div class="tyndall-rays">
+        <div class="ray ray-1"></div>
+        <div class="ray ray-2"></div>
+        <div class="ray ray-3"></div>
+        <div class="ray ray-4"></div>
+        <div class="ray ray-5"></div>
+        <div class="ray ray-6"></div>
+        <div class="ray-main"></div>
+    </div>
+
+    <!-- ==========================================================
+          萤火虫光点
+         ========================================================== -->
+    <div class="firefly-layer">
+        <div class="firefly" style="left: 10%; animation-delay: 0s; animation-duration: 22s;"></div>
+        <div class="firefly" style="left: 25%; animation-delay: 3s; animation-duration: 18s; width: 3px; height: 3px;"></div>
+        <div class="firefly" style="left: 40%; animation-delay: 6s; animation-duration: 25s;"></div>
+        <div class="firefly" style="left: 55%; animation-delay: 2s; animation-duration: 20s; width: 5px; height: 5px;"></div>
+        <div class="firefly" style="left: 70%; animation-delay: 8s; animation-duration: 16s;"></div>
+        <div class="firefly" style="left: 85%; animation-delay: 4s; animation-duration: 23s; width: 3px; height: 3px;"></div>
+        <div class="firefly" style="left: 50%; animation-delay: 10s; animation-duration: 19s;"></div>
+        <div class="firefly" style="left: 15%; animation-delay: 7s; animation-duration: 21s; width: 4px; height: 4px;"></div>
+        <div class="firefly" style="left: 65%; animation-delay: 5s; animation-duration: 17s;"></div>
+        <div class="firefly" style="left: 33%; animation-delay: 9s; animation-duration: 24s; width: 3px; height: 3px;"></div>
+    </div>
+
+    <!-- ==========================================================
+          导航栏
+         ========================================================== -->
+    <nav class="nav-bar">
+        <div class="logo">🌿 Yan2684</div>
+        <div class="nav-right">
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <span class="icon-sun">☀️</span>
+                <span class="icon-moon">🌙</span>
+                <span id="themeLabel">日间</span>
+            </button>
+            <button class="music-toggle" onclick="toggleMusic()" id="musicBtn">🎵 播放</button>
+            <a href="Yan2684.html">← 主页</a>
+        </div>
+    </nav>
+
+    <!-- ==========================================================
+          主容器
+         ========================================================== -->
+    <div class="container">
+
+        <!-- ==========================================================
+              解锁欢迎页
+             ========================================================== -->
+        <div id="lockScreen">
+            <div class="lock-icon">🌲</div>
+            <h2>森林 · <span>秘境</span></h2>
+            <p class="lock-desc">请输入通行密码，进入我的世界</p>
+            <div class="lock-form">
+                <input type="password" id="unlockInput" placeholder="请输入密码..." autofocus>
+                <button class="lock-btn" onclick="unlock()">🔓 进入</button>
+            </div>
+            <div class="lock-error" id="lockError"></div>
+            <div class="lock-hint">💡 提示：默认密码是 <strong>forest2026</strong></div>
+        </div>
+
+        <!-- ==========================================================
+              主内容（解锁后显示）
+             ========================================================== -->
+        <div id="mainContent">
+
+            <!-- ===== 欢迎语 ===== -->
+            <div class="welcome-section fade-in">
+                <div class="welcome-icon">🌿</div>
+                <h2>欢迎来到 <span>我的世界</span></h2>
+                <div class="welcome-sub">· 这里收藏着细碎的光阴与温柔 ·</div>
+            </div>
+
+            <!-- ==========================================================
+                  日常碎碎念
+                 ========================================================== -->
+            <div class="diary-section fade-in">
+                <div class="section-title">
+                    ✦ 碎碎念
+                    <span class="line"></span>
+                </div>
+
+                <div class="diary-card">
+                    <div class="diary-date">黄昏</div>
+                    <div class="diary-title">🌅 暮色里的光</div>
+                    <div class="diary-content">
+                       夕阳穿过树梢，在地上洒了一地碎金。忽然觉得，生活中最动人的瞬间往往就是这样不期而遇的。
+                    </div>
+                    <span class="diary-tag">#日常</span>
+                </div>
+
+                <div class="diary-card">
+                    <div class="diary-date">午后</div>
+                    <div class="diary-title">📖 </div>
+                    <div class="diary-content">
+                        「真正重要的东西，用眼睛是看不见的。」每一次重读都有新的感受。也许是长大了，才更懂得玫瑰和狐狸的意义。
+                    </div>
+                    <span class="diary-tag">#读书</span>
+                </div>
+
+                <div class="diary-card">
+                    <div class="diary-date">清晨</div>
+                    <div class="diary-title">🌱 种下的种子发芽了</div>
+                    <div class="diary-content">
+                       微小而确定的喜悦。生命真好。
+                    </div>
+                    <span class="diary-tag">#植物</span>
+                </div>
+
+                <div class="diary-card">
+                    <div class="diary-date">深夜</div>
+                    <div class="diary-title">🌙 失眠的夜晚</div>
+                    <div class="diary-content">
+                       有时候，安静本身就是一种安慰。
+                    </div>
+                    <span class="diary-tag">#随笔</span>
+                </div>
+            </div>
+
+            <!-- ==========================================================
+                  留言板
+                 ========================================================== -->
+            <div class="message-section fade-in">
+                <div class="section-title">📝 森林信箱</div>
+                <div class="section-desc">留下你想说的话 · 每一条都会被认真阅读</div>
+
+                <form class="message-form" id="messageForm">
+                    <div class="form-row">
+                        <input type="text" id="msgName" placeholder="你的名字" required>
+                        <input type="text" id="msgTag" placeholder="主题（选填）">
+                    </div>
+                    <textarea id="msgContent" placeholder="写你想说的话..." required></textarea>
+                    <button type="submit" class="submit-btn">🌿 投递到森林</button>
+                </form>
+
+                <div class="message-list">
+                    <div class="list-title">✦ 森林里的回音</div>
+
+                    <div class="message-item">
+                        <span class="msg-name">林间风</span>
+                        <span class="msg-time">2026-08-05 20:12</span>
+                        <div class="msg-content">好喜欢这个森林页面，丁达尔光效太美了！</div>
+                    </div>
+
+                           </div>
+            </div>
+
+            <!-- ===== 返回链接 ===== -->
+            <a href="Yan2684.html" class="back-link fade-in">← 返回主页</a>
+
+            <!-- ===== 页脚 ===== -->
+            <div class="footer fade-in">
+                🌲 在森林深处，收藏每一寸温柔的光
+            </div>
+
+        </div>
+
+    </div>
+
+      <script>
+        // ==========================================================
+        // 1. 解锁功能
+        // ==========================================================
+        const CORRECT_PASSWORD = 'forest2026';
+
+        function unlock() {
+            const input = document.getElementById('unlockInput');
+            const error = document.getElementById('lockError');
+            const userInput = input.value.trim();
+
+            if (!userInput) {
+                error.textContent = '❌ 请输入密码';
+                return;
+            }
+
+            if (userInput === CORRECT_PASSWORD) {
+                document.getElementById('lockScreen').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                error.textContent = '';
+                // 触发滚动淡入
+                setTimeout(() => {
+                    document.querySelectorAll('.fade-in').forEach(el => {
+                        el.classList.add('visible');
+                    });
+                }, 300);
+            } else {
+                error.textContent = '❌ 密码错误，请重试';
+                input.value = '';
+                input.focus();
+                input.disabled = true;
+                setTimeout(() => { input.disabled = false; }, 600);
+            }
+        }
+
+        document.getElementById('unlockInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                unlock();
+            }
+        });
+
+        // ==========================================================
+        // 2. 昼夜模式切换
+              let currentTheme = 'day';
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const label = document.getElementById('themeLabel');
+            
+            if (currentTheme === 'day') {
+                html.setAttribute('data-theme', 'night');
+                currentTheme = 'night';
+                label.textContent = '夜间';
+            } else {
+                html.removeAttribute('data-theme');
+                currentTheme = 'day';
+                label.textContent = '日间';
+            }
+        }
+
+          // ==========================================================
+        let audio = null;
+        let isMusicPlaying = false;
+
+        function toggleMusic() {
+            const btn = document.getElementById('musicBtn');
+            
+            if (!audio) {
+                audio = new Audio('毛不易 - 一程山路.mp3');
+                audio.loop = true;
+                audio.volume = 0.5;
+                audio.addEventListener('ended', function() {
+                    isMusicPlaying = false;
+                    btn.textContent = '🎵 播放';
+                });
+            }
+
+            if (isMusicPlaying) {
+                audio.pause();
+                isMusicPlaying = false;
+                btn.textContent = '🎵 播放';
+            } else {
+                audio.play().catch(function(e) {
+                    console.log('播放需要用户交互:', e);
+                });
+                isMusicPlaying = true;
+                btn.textContent = '⏸ 暂停';
+            }
+        }
+
+        // ==========================================================
+               document.getElementById('messageForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('msgName').value.trim() || '匿名';
+            const tag = document.getElementById('msgTag').value.trim();
+            const content = document.getElementById('msgContent').value.trim();
+            
+            if (!content) {
+                alert('❌ 请写下你想说的话');
+                return;
+            }
+            
+            const now = new Date();
+            const timeStr = now.getFullYear() + '-' + 
+                            String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                            String(now.getDate()).padStart(2, '0') + ' ' +
+                            String(now.getHours()).padStart(2, '0') + ':' +
+                            String(now.getMinutes()).padStart(2, '0');
+            
+            const list = document.querySelector('.message-list');
+            const newItem = document.createElement('div');
+            newItem.className = 'message-item';
+            
+            let displayName = name;
+            if (tag) displayName += ` · ${tag}`;
+            
+            newItem.innerHTML = `
+                <span class="msg-name">${escapeHtml(displayName)}</span>
+                <span class="msg-time">${timeStr}</span>
+                <div class="msg-content">${escapeHtml(content)}</div>
+            `;
+            
+            list.insertBefore(newItem, list.querySelector('.message-item'));
+            
+            document.getElementById('msgName').value = '';
+            document.getElementById('msgTag').value = '';
+            document.getElementById('msgContent').value = '';
+        });
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+              // ==========================================================
+        (function() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: "0px 0px -20px 0px"
+            });
+
+            document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+        })();
+
+        console.log('🌲 森林 · 秘境已加载');
+        console.log('🔑 默认密码: forest2026');
+        console.log('🌙 点击右上角切换昼夜模式');
+        console.log('🎵 点击音乐按钮播放背景音乐');
+    </script>
+
+</body>
+</html>

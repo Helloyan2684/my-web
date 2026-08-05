@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Yan2684 · 黄昏书房</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500&family=Noto+Serif+SC:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ==========================================================
+              全局重置
+             ========================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Serif SC', 'Quicksand', serif;
+            min-height: 100vh;
+            /* ===== 深橘色 + 深草绿色黄昏渐变 ===== */
+            background: #2d1f0e;
+            background-image: 
+                /* 黄昏光晕 - 橘色 */
+                radial-gradient(ellipse at 30% 20%, rgba(200, 120, 50, 0.25) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 30%, rgba(180, 100, 40, 0.20) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(60, 100, 50, 0.20) 0%, transparent 50%),
+                /* 深色基底 */
+                linear-gradient(170deg, 
+                    #3d2a14 0%, 
+                    #2d1f0e 30%, 
+                    #1a2a12 60%, 
+                    #0f1f0a 100%
+                );
+            background-attachment: fixed;
+            color: #e8dcc8;
+            line-height: 1.8;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ==========================================================
+              页面主容器
+             ========================================================== */
+        .container {
+            position: relative;
+            z-index: 2;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 100px 24px 60px;
+        }
+
+        /* ==========================================================
+              导航栏
+             ========================================================== */
+        .nav-bar {
+            position: fixed;
+            top: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(92%, 700px);
+            background: rgba(40, 30, 18, 0.75);
+            backdrop-filter: blur(18px);
+            border-radius: 40px;
+            padding: 12px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid rgba(200, 160, 100, 0.12);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+            z-index: 100;
+        }
+
+        .nav-bar .logo {
+            font-family: 'Noto Serif SC', serif;
+            font-weight: 600;
+            font-size: 1.4rem;
+            color: #e8c88a;
+            background: linear-gradient(135deg, #e8c88a, #c8a060);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-bar a {
+            text-decoration: none;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 500;
+            font-size: 0.95rem;
+            color: rgba(200, 180, 140, 0.5);
+            padding: 6px 18px;
+            border-radius: 24px;
+            transition: all 0.25s ease;
+            border: 1px solid transparent;
+        }
+
+        .nav-bar a:hover {
+            background: rgba(200, 160, 100, 0.08);
+            color: #e8c88a;
+            border-color: rgba(200, 160, 100, 0.12);
+        }
+
+        /* ==========================================================
+              页面标题
+             ========================================================== */
+        .page-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .page-header h1 {
+            font-family: 'Noto Serif SC', serif;
+            font-weight: 300;
+            font-size: 2.6rem;
+            color: #e8dcc8;
+            text-shadow: 0 0 60px rgba(200, 150, 80, 0.06);
+            letter-spacing: 6px;
+        }
+
+        .page-header h1 span {
+            color: #e8c88a;
+        }
+
+        .page-header .subtitle {
+            font-family: 'Quicksand', 'Noto Serif SC', sans-serif;
+            font-weight: 300;
+            font-size: 0.95rem;
+            color: rgba(200, 180, 140, 0.35);
+            margin-top: 4px;
+            letter-spacing: 4px;
+        }
+
+        /* ==========================================================
+              轮播图
+             ========================================================== */
+        .carousel-section {
+            margin-bottom: 40px;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 12px 50px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(200, 160, 100, 0.06);
+        }
+
+        .carousel-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 21 / 9;
+            overflow: hidden;
+            background: #1a1208;
+        }
+
+        .carousel-track {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .carousel-slide .slide-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 30px 40px 25px;
+            background: linear-gradient(to top, rgba(20, 15, 8, 0.85) 0%, transparent 100%);
+            text-align: center;
+        }
+
+        .carousel-slide .slide-overlay .slide-title {
+            font-family: 'Noto Serif SC', serif;
+            font-weight: 600;
+            font-size: 1.8rem;
+            color: #f0e4d0;
+            letter-spacing: 2px;
+        }
+
+        .carousel-slide .slide-overlay .slide-desc {
+            font-family: 'Quicksand', 'Noto Serif SC', sans-serif;
+            font-weight: 300;
+            font-size: 0.95rem;
+            color: rgba(220, 200, 170, 0.6);
+            margin-top: 4px;
+            letter-spacing: 1px;
+        }
+
+        /* 轮播占位（没有图片时显示） */
+        .carousel-slide .slide-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            background: linear-gradient(135deg, #3d2a14, #1a2a12);
+            color: rgba(200, 160, 100, 0.15);
+        }
+
+        /* 轮播按钮 */
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(30, 22, 12, 0.5);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(200, 160, 100, 0.1);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            color: rgba(220, 200, 170, 0.5);
+            font-size: 1.4rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .carousel-btn:hover {
+            background: rgba(60, 40, 20, 0.6);
+            color: #e8c88a;
+            border-color: rgba(200, 160, 100, 0.2);
+        }
+
+        .carousel-btn.prev { left: 16px; }
+        .carousel-btn.next { right: 16px; }
+
+        /* 轮播指示器（小圆点） */
+        .carousel-dots {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 5;
+        }
+
+        .carousel-dots .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(220, 200, 170, 0.15);
+            border: 1px solid rgba(200, 160, 100, 0.08);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .carousel-dots .dot.active {
+            background: #e8c88a;
+            border-color: #e8c88a;
+            box-shadow: 0 0 20px rgba(200, 160, 100, 0.2);
+        }
+
+        .carousel-dots .dot:hover {
+            background: rgba(200, 160, 100, 0.3);
+        }
+
+        /* ==========================================================
+              分类导航标签
+             ========================================================== */
+        .category-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .category-tab {
+            padding: 10px 28px;
+            border-radius: 30px;
+            font-family: 'Noto Serif SC', serif;
+            font-weight: 400;
+            font-size: 0.95rem;
+            background: rgba(50, 35, 20, 0.4);
+            border: 1px solid rgba(200, 160, 100, 0.06);
+            color: rgba(200, 180, 140, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+        }
+
+        .category-tab:hover {
+            background: rgba(60, 40, 22, 0.5);
+            color: rgba(220, 200, 170, 0.6);
+            border-color: rgba(200, 160, 100, 0.08);
+        }
+
+        .category-tab.active {
+            background: rgba(200, 160, 100, 0.08);
+            border-color: rgba(200, 160, 100, 0.15);
+            color: #e8c88a;
+            box-shadow: 0 0 30px rgba(200, 160, 100, 0.02);
+        }
+
+        /* ==========================================================
+              分类内容区（折叠式）
+             ========================================================== */
+        .category-content {
+            display: none;
+            animation: fadeUp 0.5s ease;
+        }
+
+        .category-content.active {
+            display: block;
+        }
+
+        @keyframes fadeUp {
+            0% { opacity: 0; transform: translateY(15px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 图书折叠项 */
+        .book-fold {
+            background: rgba(40, 30, 18, 0.35);
+            backdrop-filter: blur(8px);
+            border-radius: 18px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(200, 160, 100, 0.04);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .book-fold:hover {
+            border-color: rgba(200, 160, 100, 0.08);
+            background: rgba(50, 35, 20, 0.4);
+        }
+
+        .book-fold-header {
+            padding: 16px 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            user-select: none;
+            transition: all 0.3s ease;
+        }
+
+        .book-fold-header:hover {
+            background: rgba(200, 160, 100, 0.02);
+        }
+
+        .book-fold-header .book-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .book-fold-header .book-info .book-emoji {
+            font-size: 1.8rem;
+            flex-shrink: 0;
+        }
+
+        .book-fold-header .book-info .book-meta .book-title {
+            font-family: 'Noto Serif SC', serif;
+            font-weight: 500;
+            font-size: 1.1rem;
+            color: #e8dcc8;
+        }
+
+        .book-fold-header .book-info .book-meta .book-author {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.8rem;
+            color: rgba(200, 180, 140, 0.35);
+        }
+
+        .book-fold-header .fold-arrow {
+            font-size: 1.2rem;
+            color: rgba(200, 180, 140, 0.2);
+            transition: transform 0.4s ease;
+            flex-shrink: 0;
+        }
+
+        .book-fold-header .fold-arrow.open {
+            transform: rotate(180deg);
+        }
+
+        .book-fold-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease;
+            opacity: 0;
+            padding: 0 24px;
+        }
+
+        .book-fold-body.open {
+            max-height: 500px;
+            opacity: 1;
+            padding: 0 24px 20px;
+        }
+
+        .book-fold-body .book-desc {
+            font-family: 'Quicksand', 'Noto Serif SC', sans-serif;
+            font-weight: 300;
+            font-size: 0.92rem;
+            color: rgba(200, 180, 140, 0.55);
+            line-height: 1.9;
+            letter-spacing: 0.5px;
+        }
+
+        .book-fold-body .book-link {
+            display: inline-block;
+            margin-top: 8px;
+            color: #e8c88a;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(200, 160, 100, 0.15);
+            padding-bottom: 2px;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .book-fold-body .book-link:hover {
+            color: #f0dca0;
+            border-bottom-color: rgba(200, 160, 100, 0.4);
+        }
+
+        /* ==========================================================
+              图书交流感悟区（留言板）
+             ========================================================== */
+        .discussion-section {
+            margin-top: 50px;
+            background: rgba(40, 30, 18, 0.30);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 32px 36px;
+            border: 1px solid rgba(200, 160, 100, 0.04);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .discussion-section .section-title {
+            font-family: 'Noto Serif SC', serif;
+            font-weight: 400;
+            font-size: 1.4rem;
+            color: #e8dcc8;
+            margin-bottom: 6px;
+            letter-spacing: 2px;
+        }
+
+        .discussion-section .section-desc {
+            font-family: 'Quicksand', 'Noto Serif SC', sans-serif;
+            font-weight: 300;
+            font-size: 0.85rem;
+            color: rgba(200, 180, 140, 0.3);
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        .discussion-form {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .discussion-form .form-row {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .discussion-form .form-row input {
+            flex: 1;
+            min-width: 160px;
+        }
+
+        .discussion-form input,
+        .discussion-form textarea {
+            padding: 12px 18px;
+            border: 1px solid rgba(200, 160, 100, 0.06);
+            border-radius: 14px;
+            font-family: 'Quicksand', 'Noto Serif SC', sans-serif;
+            font-size: 0.95rem;
+            background: rgba(30, 22, 12, 0.4);
+            color: #e8dcc8;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .discussion-form input::placeholder,
+        .discussion-form textarea::placeholder {
+            color: rgba(200, 180, 140, 0.2);
+        }
+
+        .discussion-form input:focus,
+        .discussion-form textarea:focus {
+            border-color: rgba(200, 160, 100, 0.15);
+            background: rgba(40, 30, 18, 0.5);
+            box-shadow: 0 0 30px rgba(200, 160, 100, 0.02);
+        }
+
+        .discussion-form textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .discussion-form .submit-btn {
+            padding: 12px 32px;
+            background: rgba(200, 160, 100, 0.08);
+            border: 1px solid rgba(200, 160, 100, 0.12);
+            border-radius: 30px;
+            color: #e8c88a;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            align-self: flex-start;
+            letter-spacing: 1px;
+        }
+
+        .discussion-form .submit-btn:hover {
+            background: rgba(200, 160, 100, 0.12);
+            border-color: rgba(200, 160, 100, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* 留言列表 */
+        .discussion-list {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(200, 160, 100, 0.04);
+        }
+
+        .discussion-list .list-title {
+            font-family: 'Noto Serif SC', serif;
+            font-weight: 300;
+            font-size: 0.9rem;
+            color: rgba(200, 180, 140, 0.2);
+            margin-bottom: 14px;
+            letter-spacing: 2px;
+        }
+
+        .discussion-item {
+            background: rgba(30, 22, 12, 0.3);
+            border-radius: 16px;
+            padding: 14px 20px;
+            margin-bottom: 10px;
+            border-left: 2px solid rgba(200, 160, 100, 0.06);
+            transition: all 0.3s ease;
+        }
+
+        .discussion-item:hover {
+            background: rgba(40, 30, 18, 0.4);
+            border-left-color: rgba(200, 160, 100, 0.12);
+        }
+
+        .discussion-item .msg-name {
+            font-family: 'Noto Serif SC', serif;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #e8dcc8;
+        }
+
+        .discussion-item .msg-time {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.7rem;
+            color: rgba(200, 180, 140, 0.2);
+            margin-left: 12px;
+        }
+
+        .discussion-item .msg-content {
+            font-family: 'Quicksand', 'Noto Serif SC', sans-serif;
+            color: rgba(200, 180, 140, 0.55);
+            font-size: 0.9rem;
+            margin-top: 4px;
+            line-height: 1.7;
+        }
+
+        /* ==========================================================
+              返回链接
+             ========================================================== */
+        .back-link {
+            display: inline-block;
+            margin-top: 16px;
+            color: rgba(200, 180, 140, 0.2);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(200, 160, 100, 0.04);
+            padding-bottom: 4px;
+            transition: all 0.3s ease;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        .back-link:hover {
+            color: rgba(200, 180, 140, 0.4);
+            border-bottom-color: rgba(200, 160, 100, 0.08);
+        }
+
+        /* ==========================================================
+              页脚
+             ========================================================== */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: rgba(200, 180, 140, 0.08);
+            font-size: 0.7rem;
+            font-family: 'Quicksand', sans-serif;
+            border-top: 1px solid rgba(200, 160, 100, 0.02);
+            letter-spacing: 2px;
+        }
+
+        /* ==========================================================
+              滚动淡入
+             ========================================================== */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ==========================================================
+              响应式
+             ========================================================== */
+        @media (max-width: 600px) {
+            .container { padding: 80px 16px 40px; }
+            .nav-bar { padding: 10px 18px; width: 96%; }
+            .nav-bar .logo { font-size: 1.2rem; }
+            .page-header h1 { font-size: 1.8rem; }
+            
+            .carousel-wrapper { aspect-ratio: 16 / 9; }
+            .carousel-slide .slide-overlay .slide-title { font-size: 1.2rem; }
+            .carousel-slide .slide-overlay .slide-desc { font-size: 0.75rem; }
+            .carousel-slide .slide-overlay { padding: 16px 20px 14px; }
+            .carousel-btn { width: 34px; height: 34px; font-size: 1rem; }
+            .carousel-btn.prev { left: 8px; }
+            .carousel-btn.next { right: 8px; }
+            
+            .category-tabs { gap: 8px; }
+            .category-tab { padding: 8px 18px; font-size: 0.85rem; }
+            
+            .book-fold-header { padding: 14px 18px; }
+            .book-fold-header .book-info .book-emoji { font-size: 1.4rem; }
+            .book-fold-header .book-info .book-meta .book-title { font-size: 0.95rem; }
+            .book-fold-body { padding: 0 18px; }
+            .book-fold-body.open { padding: 0 18px 16px; }
+            
+            .discussion-section { padding: 24px 20px; }
+            .discussion-section .section-title { font-size: 1.2rem; }
+            .discussion-form .form-row { flex-direction: column; }
+            .discussion-form .form-row input { min-width: auto; }
+            .discussion-form .submit-btn { align-self: stretch; text-align: center; }
+        }
+
+        @media (max-width: 400px) {
+            .carousel-wrapper { aspect-ratio: 4 / 3; }
+            .carousel-slide .slide-overlay .slide-title { font-size: 1.0rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==========================================================
+          导航栏
+         ========================================================== -->
+    <nav class="nav-bar">
+        <div class="logo">📖 Yan2684</div>
+        <a href="Yan2684.html">← 返回主页</a>
+    </nav>
+
+    <!-- ==========================================================
+          主内容
+         ========================================================== -->
+    <div class="container">
+
+        <!-- ==========================================================
+              页面标题
+             ========================================================== -->
+        <div class="page-header fade-in">
+            <h1>📖 黄昏 · <span>书房</span></h1>
+            <div class="subtitle">在暮色中，与一本书相遇</div>
+        </div>
+
+        <!-- ==========================================================
+              轮播图
+             ========================================================== -->
+        <div class="carousel-section fade-in">
+            <div class="carousel-wrapper" id="carousel">
+                <div class="carousel-track" id="carouselTrack">
+                    
+                    <!-- 轮播 1 -->
+                    <div class="carousel-slide">
+                        <div class="slide-placeholder" style="background: linear-gradient(135deg, #4a3020, #2a1a0e);">
+                            🌅
+                        </div>
+                        <div class="slide-overlay">
+                            <div class="slide-title">黄昏是读书最好的时辰</div>
+                            <div class="slide-desc">光线温柔，万物寂静，文字开始发光</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 轮播 2 -->
+                    <div class="carousel-slide">
+                        <div class="slide-placeholder" style="background: linear-gradient(135deg, #3d2a14, #1a2a12);">
+                            📚
+                        </div>
+                        <div class="slide-overlay">
+                            <div class="slide-title">书架是通往无数世界的门</div>
+                            <div class="slide-desc">每一本书都是一次远行</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 轮播 3 -->
+                    <div class="carousel-slide">
+                        <div class="slide-placeholder" style="background: linear-gradient(135deg, #2a1a0e, #1a2a12);">
+                            🍂
+                        </div>
+                        <div class="slide-overlay">
+                            <div class="slide-title">在文字里寻找栖息的角落</div>
+                            <div class="slide-desc">阅读，是一场与自己的对话</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 轮播 4 -->
+                    <div class="carousel-slide">
+                        <div class="slide-placeholder" style="background: linear-gradient(135deg, #3d2010, #0f1f0a);">
+                            🌙
+                        </div>
+                        <div class="slide-overlay">
+                            <div class="slide-title">暮色渐深，书页渐暖</div>
+                            <div class="slide-desc">在黄昏的光里，读一段慢时光</div>
+                        </div>
+                    </div>
+                    
+                </div>
+                
+                <!-- 轮播按钮 -->
+                <button class="carousel-btn prev" onclick="moveSlide(-1)">‹</button>
+                <button class="carousel-btn next" onclick="moveSlide(1)">›</button>
+                
+                <!-- 指示点 -->
+                <div class="carousel-dots" id="carouselDots">
+                    <span class="dot active" onclick="goToSlide(0)"></span>
+                    <span class="dot" onclick="goToSlide(1)"></span>
+                    <span class="dot" onclick="goToSlide(2)"></span>
+                    <span class="dot" onclick="goToSlide(3)"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================================
+              分类导航标签
+             ========================================================== -->
+        <div class="category-tabs fade-in">
+            <span class="category-tab active" data-category="recommend">✨ 精选推荐</span>
+            <span class="category-tab" data-category="literature">📜 文学</span>
+            <span class="category-tab" data-category="novel">📖 小说</span>
+            <span class="category-tab" data-category="misc">📦 杂书架</span>
+        </div>
+
+        <!-- ==========================================================
+              分类内容区
+             ========================================================== -->
+
+        <!-- 精选推荐（默认显示） -->
+        <div class="category-content active" id="category-recommend">
+            
+            <div class="book-fold fade-in">
+                <div class="book-fold-header" onclick="toggleFold(this)">
+                    <div class="book-info">
+                        <span class="book-emoji">🌾</span>
+                        <div class="book-meta">
+                            <div class="book-title">瓦尔登湖</div>
+                            <div class="book-author">亨利·戴维·梭罗</div>
+                        </div>
+                    </div>
+                    <span class="fold-arrow">▾</span>
+                </div>
+                <div class="book-fold-body">
+                    <div class="book-desc">
+                        「我步入丛林，因为我希望生活得有意义。」一本关于简朴、自然与内心宁静的经典。在喧嚣的世界里，梭罗的文字像一汪清泉。
+                    </div>
+                    <a href="https://book.douban.com/subject/1049158/" target="_blank" class="book-link">📖 豆瓣阅读 →</a>
+                </div>
+            </div>
+
+            <div class="book-fold fade-in">
+                <div class="book-fold-header" onclick="toggleFold(this)">
+                    <div class="book-info">
+                        <span class="book-emoji">🌅</span>
+                        <div class="book-meta">
+                            <div class="book-title">小王子</div>
+                            <div class="book-author">安东尼·德·圣-埃克苏佩里</div>
+                        </div>
+                    </div>
+                    <span class="fold-arrow">▾</span>
+                </div>
+                <div class="book-fold-body">
+                    <div class="book-desc">
+                        「真正重要的东西，用眼睛是看不见的。」一本写给成年人的童话。关于爱、责任与失去，每次重读都有新的感动。
+                    </div>
+                    <a href="https://book.douban.com/subject/1084336/" target="_blank" class="book-link">📖 豆瓣阅读 →</a>
+                </div>
+            </div>
+
+            <div class="book-fold fade-in">
+                <div class="book-fold-header" onclick="toggleFold(this)">
+                    <div class="book-info">
+                        <span class="book-emoji">🍂</span>
+                        <div class="book-meta">
+                            <div class="book-title">人间草木</div>
+                            <div class="book-author">汪曾祺</div>
+                        </div>
+                    </div>
+                    <span class="fold-arrow">▾</span>
+                </div>
+                <div class="book-fold-body">
+                    <div class="book-desc">
+                        汪曾祺笔下的草木鱼虫、人间烟火，平淡中见深情。读他的文字，像在黄昏里喝一杯温热的茶。
+                    </div>
+                    <a href="https://book.douban.com/subject/1044379/" target="_blank" class="book-link">📖 豆瓣阅读 →</a>
+                </div>
+            </div>
+
+            <div class="book-fold fade-in">
+                <div class="book-fold-header" onclick="toggleFold(this)">
+                    <div class="book-info">
+                        <span class="book-emoji">🌙</span>
+                        <div class="book-meta">
+                            <div class="book-title">夜航西飞</div>
+                            <div class="book-author">柏瑞尔·马卡姆</div>
+                        </div>
+                    </div>
+                    <span class="fold-arrow">▾</span>
+                </div>
+                <div class="book-fold-body">
+                    <div class="book-desc">
+                        非洲、飞行、孤独与自由。一位女性飞行员的自传，文字如夜色般辽阔而迷人。
+                    </div>
+                    <a href="https://book.douban.com/subject/26647013/" target="_blank" class="book-link">📖 豆瓣阅读 →</a>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 文学 -->
+        <div class="category-content" id="category-literature">
+
+            <div class="book-fold fade-in">
+                <div class="book-fold-header" onclick="toggleFold(this)">
+                    <div class="book-info">
+                        <span class="book-emoji">📜</span>
+                        <div class="book-meta">
+                            <div class="book-title">诗经</div>
+                            <div class="book-author">佚名</div>
+                        </div>
+                    </div>
+                    <span class="fold-arrow">▾</span>
+                </div>
+                <div class="book-fold-body">
+                    <div class="book-desc">
+                        「关关雎鸠，在河之洲。」中国诗歌的源头，三千年后的黄昏读来，依然能听见先民的歌声。
+                    </div>
+                    <a href="https://book.douban.com/subject/1005751/" target="_blank" class="book-link">📖 豆瓣阅读 →</a>
+                </div>
+            </div>
+
+            <div class="book-fold fade-in">
+                <div class="book-fold-header" onclick="toggleFold(this)">
+                    <div class="book-info">
+                        <span class="book-emoji">🌿</span>
+                        <div class="book-meta">
+                            <div class="book-title">庄子</div>
+                            <div class="book-author">庄子</div>
+                        </div>
+                    </div>
+                    <span class="fold-arrow">▾</span>
+                </div>
+                <div class="book-fold-body">
+                    <div class="book-desc">
+                        「天地与我并生，而万物与我为一。」庄子的文字如风，吹散世俗的尘埃，让人在黄昏里得以舒展。
+                    </div>
+                    <a href="https://book.douban.com/subject/1005750/" target="_blank" class="book-link">📖 豆瓣阅读 →</a>
+                </div>
+            </div>
+
+            <div class="book-fold fade-in">
+                <div class="book-fold-header" onclick="toggleFold(this)">
+                    <div class="book-info">
+                        <span class="book-emoji">🍃</span>
+                        <div class="book-meta">
+                            <div class="book-title">枕草子</div>
+                            <div class="book-author">清少纳言</div>
+                        </div>
+                    </div>
+                    <span class="fold-arrow">▾</span>
+                </div>
+                <div class="book-fold-body">
+                    <div class="book-desc">
+                        日本平安时代的随笔集，记录四季风物、宫廷琐事。文字清丽，像黄昏时分的微风。
+                    </div>
+                    <a href="https://book.douban.com/subject/1431754/" target="_blank" class="book-link">📖 豆瓣阅读 →</a>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 小说 -->
+        <div class="category-content" id="category-novel">
+
+            <div class="book-fold fade-in">
+                <div class="book-fold-header" onclick="toggleFold(this)">
+                    <div class="book-info">
+                        <span class="book-emoji">🏔️</span>
+                        <div class="book-meta">
+                            <div class="book-title">百年孤独</div>
+                            <div class="book-author">加西亚·马尔克斯</div>
+                        </div>
+                    </div>
+                    <span class="fold-arrow">▾</span>
+                </div>
+                <div class="book-fold-body">
+                    <div class="book-desc">
+                        魔幻现实主义的巅峰之作。布恩迪亚家族七代人的故事，像一场盛大的黄昏梦。
+                    </div>
+                    <a href="https://book.douban.com/subject/1008145/" target="_blank" class="book-link">📖 豆瓣阅读 →</a>
+                </div>
+            </div>
+
+            <div class="book-fold fade-in">
+                <div class="book-fold-header" onclick="toggleFold(this)">
+                    <div class="book-info">
+                        <span class="book-emoji">🌊</span>
+                        <div class="book-meta">
+                            <div class="book-title">老人与海</div>
+                            <div class="book-author">欧内斯特·海明威</div>
+                        </div>
+                    </div>
+                    <span class="fold-arrow">▾</span>
+                </div>
+                <div class="book-fold-body">
+                    <div class="book-desc">
+                        「人可以被毁灭，但不能被打败。」一个关于勇气与尊严的简短故事，却有着大海般深远的回响。
+                    </div>
+                    <a href="https://book.douban.com/subject/1029335/" target="_blank" class="book-link">📖 豆瓣阅读 →</a>
+                </div>
+            </div>
+
+            <div class="book-fold fade-in">
+                <div class="book-fold-header" onclick="toggleFold(this)">
+                    <div class="book-info">
+                        <span class="book-emoji">🌆</span>
+                        <div class="book-meta">
+                            <div class="book-title">挪威的森林</div>
+                            <div class="book-author">村上春树</div>
+                        </div>
+                    </div>
+                    <span class="fold-arrow">▾</span>
+                </div>
+                <div class="book-fold-body">
+                    <div class="book-desc">
+                        青春、爱情与失去。村上春树的文字有一种独特的孤独感，适合在黄昏时分慢慢读。
+                    </div>
+                    <a href="https://book.douban.com/subject/1046265/" target="_blank" class="book-link">📖 豆瓣阅读 →</a>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 杂书架 -->
+        <div class="category-content" id="category-misc">
+
+            <div class="book-fold fade-in">
+                <div class="book-fold-header" onclick="toggleFold(this)">
+                    <div class="book-info">
+                        <span class="book-emoji">🧠</span>
+                        <div class="book-meta">
+                            <div class="book-title">思考，快与慢</div>
+                            <div class="book-author">丹尼尔·卡尼曼</div>
+                        </div>
+                    </div>
+                    <span class="fold-arrow">▾</span>
+                </div>
+                <div class="book-fold-body">
+                    <div class="book-desc">
+                        诺贝尔经济学奖得主关于人类思维方式的经典。理解大脑如何做决定，像在黄昏里点亮一盏灯。
+                    </div>
+                    <a href="https://book.douban.com/subject/10785583/" target="_blank" class="book-link">📖 豆瓣阅读 →</a>
+                </div>
+            </div>
+
+            <div class="book-fold fade-in">
+                <div class="book-fold-header" onclick="toggleFold(this)">
+                    <div class="book-info">
+                        <span class="book-emoji">🌌</span>
+                        <div class="book-meta">
+                            <div class="book-title">万物简史</div>
+                            <div class="book-author">比尔·布莱森</div>
+                        </div>
+                    </div>
+                    <span class="fold-arrow">▾</span>
+                </div>
+                <div class="book-fold-body">
+                    <div class="book-desc">
+                        从宇宙大爆炸到人类文明，一本有趣的科普读物。在黄昏里读它，像俯瞰整个世界的诞生。
+                    </div>
+                    <a href="https://book.douban.com/subject/1008951/" target="_blank" class="book-link">📖 豆瓣阅读 →</a>
+                </div>
+            </div>
+
+            <div class="book-fold fade-in">
+                <div class="book-fold-header" onclick="toggleFold(this)">
+                    <div class="book-info">
+                        <span class="book-emoji">🎨</span>
+                        <div class="book-meta">
+                            <div class="book-title">艺术的故事</div>
+                            <div class="book-author">E.H.贡布里希</div>
+                        </div>
+                    </div>
+                    <span class="fold-arrow">▾</span>
+                </div>
+                <div class="book-fold-body">
+                    <div class="book-desc">
+                        最受欢迎的艺术入门读物。贡布里希用平实的语言讲述艺术史，像在黄昏里漫步美术馆。
+                    </div>
+                    <a href="https://book.douban.com/subject/1002545/" target="_blank" class="book-link">📖 豆瓣阅读 →</a>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ==========================================================
+              图书交流感悟区
+             ========================================================== -->
+        <div class="discussion-section fade-in">
+            <div class="section-title">📝 图书交流 · 感悟</div>
+            <div class="section-desc">留下你最近在读的书，或想分享的阅读感受</div>
+
+            <form class="discussion-form" id="discussionForm">
+                <div class="form-row">
+                    <input type="text" id="discussName" placeholder="你的名字" required>
+                    <input type="text" id="discussBook" placeholder="正在读的书（选填）">
+                </div>
+                <textarea id="discussContent" placeholder="分享你的阅读感悟..." required></textarea>
+                <button type="submit" class="submit-btn">📖 发布感悟</button>
+            </form>
+
+            <div class="discussion-list">
+                <div class="list-title">✦ 已有交流</div>
+
+                <div class="discussion-item">
+                    <span class="msg-name">暮色读者</span>
+                    <span class="msg-time">2026-08-05 19:32</span>
+                    <div class="msg-content">最近在读《瓦尔登湖》，梭罗的文字让我在黄昏里找到了一种久违的宁静。</div>
+                </div>
+
+                <div class="discussion-item">
+                    <span class="msg-name">书页间的风</span>
+                    <span class="msg-time">2026-08-04 21:15</span>
+                    <div class="msg-content">重读《小王子》，每一次都有不同的感触。玫瑰、狐狸、日落，都是关于爱的隐喻。</div>
+                </div>
+
+                <div class="discussion-item">
+                    <span class="msg-name">黄昏漫游者</span>
+                    <span class="msg-time">2026-08-03 18:47</span>
+                    <div class="msg-content">汪曾祺的《人间草木》太适合在傍晚读了，字里行间都是生活的温度。</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================================
+              返回链接
+             ========================================================== -->
+        <a href="Yan2684.html" class="back-link fade-in">← 返回主页</a>
+
+        <!-- ==========================================================
+              页脚
+             ========================================================== -->
+        <div class="footer fade-in">
+            📖 在黄昏里，与一本书相遇 · 阅读是一场温柔的远行
+        </div>
+
+    </div>
+
+    <!-- ==========================================================
+          JavaScript
+         ========================================================== -->
+    <script>
+        // ==========================================================
+        // 1. 轮播图
+        // ==========================================================
+        let currentSlide = 0;
+        const totalSlides = 4;
+
+        function updateCarousel() {
+            const track = document.getElementById('carouselTrack');
+            const dots = document.querySelectorAll('.dot');
+            
+            track.style.transform = `translateX(-${currentSlide * 100}%)`;
+            
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentSlide);
+            });
+        }
+
+        function moveSlide(direction) {
+            currentSlide = (currentSlide + direction + totalSlides) % totalSlides;
+            updateCarousel();
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateCarousel();
+        }
+
+        // 自动轮播（每 5 秒切换一次）
+        let autoPlay = setInterval(() => moveSlide(1), 5000);
+
+        // 鼠标悬停时暂停自动轮播
+        const carousel = document.getElementById('carousel');
+        carousel.addEventListener('mouseenter', () => clearInterval(autoPlay));
+        carousel.addEventListener('mouseleave', () => {
+            clearInterval(autoPlay);
+            autoPlay = setInterval(() => moveSlide(1), 5000);
+        });
+
+        // ==========================================================
+        // 2. 分类切换
+        // ==========================================================
+        const tabs = document.querySelectorAll('.category-tab');
+        const contents = {
+            recommend: document.getElementById('category-recommend'),
+            literature: document.getElementById('category-literature'),
+            novel: document.getElementById('category-novel'),
+            misc: document.getElementById('category-misc')
+        };
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                // 切换 tab 激活状态
+                tabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // 切换内容显示
+                const category = this.dataset.category;
+                Object.keys(contents).forEach(key => {
+                    contents[key].classList.toggle('active', key === category);
+                });
+            });
+        });
+
+        // ==========================================================
+        // 3. 图书折叠展开
+        // ==========================================================
+        function toggleFold(header) {
+            const body = header.nextElementSibling;
+            const arrow = header.querySelector('.fold-arrow');
+            
+            if (body.classList.contains('open')) {
+                body.classList.remove('open');
+                arrow.classList.remove('open');
+            } else {
+                body.classList.add('open');
+                arrow.classList.add('open');
+            }
+        }
+
+        // ==========================================================
+        // 4. 图书交流表单
+        // ==========================================================
+        document.getElementById('discussionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('discussName').value.trim() || '匿名读者';
+            const book = document.getElementById('discussBook').value.trim();
+            const content = document.getElementById('discussContent').value.trim();
+            
+            if (!content) {
+                alert('请写下你的阅读感悟～');
+                return;
+            }
+            
+            const now = new Date();
+            const timeStr = now.getFullYear() + '-' + 
+                            String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                            String(now.getDate()).padStart(2, '0') + ' ' +
+                            String(now.getHours()).padStart(2, '0') + ':' +
+                            String(now.getMinutes()).padStart(2, '0');
+            
+            const list = document.querySelector('.discussion-list');
+            const newItem = document.createElement('div');
+            newItem.className = 'discussion-item';
+            
+            let displayName = name;
+            if (book) displayName += ` · 《${book}》`;
+            
+            newItem.innerHTML = `
+                <span class="msg-name">${escapeHtml(displayName)}</span>
+                <span class="msg-time">${timeStr}</span>
+                <div class="msg-content">${escapeHtml(content)}</div>
+            `;
+            
+            list.insertBefore(newItem, list.querySelector('.discussion-item'));
+            
+            document.getElementById('discussName').value = '';
+            document.getElementById('discussBook').value = '';
+            document.getElementById('discussContent').value = '';
+        });
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ==========================================================
+        // 5. 滚动淡入
+        // ==========================================================
+        (function() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: "0px 0px -20px 0px"
+            });
+
+            document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+        })();
+
+        console.log('📖 黄昏书房已加载 · 在暮色中与书相遇');
+    </script>
+
+</body>
+</html>

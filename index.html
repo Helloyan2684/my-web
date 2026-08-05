@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+ <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Yan2684 · 探索者</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500&family=Noto Serif SC:wght@300;400;600&display=swap" rel="stylesheet">
+  
+    <style>
+      * {
+      margin: 0;          /* 清除默认外边距 */
+      padding: 0;         /* 清除默认内边距 */
+      box-sizing: border-box;      }
+
+    :root {
+      --sky-light: #d4eafc;           /* 天空蓝 */
+      --meadow-green: #c8e6d8;        /* 草地绿 */
+      --cloud-white: #fefef9;         /* 云朵白 */
+      --leaf-shadow: #7fa38b;         /* 叶子阴影色 */
+      --text-primary: #1e2f24;        /* 主要文字颜色（深墨绿） */
+      --text-gentle: #3e5a48;         /* 柔和文字颜色 */
+      --border-soft: rgba(80, 110, 80, 0.25);  /* 半透明边框 */
+      --glow-color: rgba(160, 195, 170, 0.5); /* 发光效果颜色 */
+      --card-bg: rgba(255, 255, 248, 0.82);   /* 卡片背景（半透明白） */
+      --nav-blur: rgba(235, 245, 235, 0.8);   /* 导航栏背景（半透明白绿） */
+      --accent-soft: #88b5a1;         /* 强调色 */
+      --radius-card: 28px;            /* 卡片圆角大小 */
+      --radius-pill: 40px;            /* 胶囊圆角大小 */
+    }
+
+     body {
+          background-color: #d9eef9;
+         background-image: 
+        url('beijing.jpg'),
+        url("data:image/svg+xml,%3Csvg width='400' height='400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"),
+        linear-gradient(
+          170deg, 
+          rgba(232, 244, 252, 0.25) 0%, 
+          rgba(214, 236, 248, 0.2) 25%, 
+          rgba(210, 236, 216, 0.25) 65%, 
+          rgba(200, 230, 216, 0.3) 100%
+        );
+      
+      /* 背景图的显示方式 */
+      background-repeat: no-repeat, repeat, no-repeat; 
+      background-size: cover, 400px 400px, cover;       
+      background-position: center, center, center;      
+      background-attachment: fixed, fixed, fixed;     
+      
+       color: var(--text-primary);
+        line-height: 1.6;
+       min-height: 100vh;
+       margin: 0;
+      padding: 0;
+      position: relative;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .texture-overlay {
+      position: fixed;     
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none; 
+      z-index: 1;       
+      opacity: 0.03;     
+      background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 200px 200px;
+    }
+
+    .sky-layer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;  
+      z-index: 0;           
+      overflow: hidden;  
+    }
+
+    .cloud {
+      position: absolute;     
+      background: rgba(255, 255, 255, 0.7); 
+      border-radius: 80% 20% 70% 30% / 60% 50% 50% 40%;  /* 不规则的云朵形状 */
+      box-shadow: 0 15px 35px rgba(255, 255, 255, 0.25), inset -5px -5px 15px rgba(200, 220, 210, 0.3);
+      backdrop-filter: blur(4px);   /* 轻微模糊，增加朦胧感 */
+      filter: drop-shadow(0 8px 12px rgba(140, 170, 140, 0.15));
+      animation: floatCloud 24s infinite alternate ease-in-out; 
+    }
+
+    .cloud::after {
+      content: '';
+      position: absolute;
+      background: inherit;          /* 继承父级的背景颜色 */
+      border-radius: inherit;       /* 继承父级的圆角 */
+      width: 100%;
+      height: 100%;
+      top: -15%;
+      left: 10%;
+      transform: scale(0.8);
+      opacity: 0.7;
+    }
+
+    .cloud-1 { width: 240px; height: 90px; top: 12%; left: -5%; animation-duration: 28s; }
+    .cloud-2 { width: 310px; height: 110px; top: 25%; right: 2%; animation-duration: 32s; animation-delay: -3s; background: rgba(250, 252, 248, 0.75); }
+    .cloud-3 { width: 190px; height: 80px; bottom: 18%; left: 10%; animation-duration: 26s; animation-delay: -7s; background: rgba(255, 255, 250, 0.8); }
+    .cloud-4 { width: 260px; height: 100px; top: 65%; right: 8%; animation-duration: 30s; animation-delay: -12s; background: rgba(248, 252, 245, 0.7); }
+
+    /* 云朵飘浮动画：定义关键帧 */
+    @keyframes floatCloud {
+      0%   { transform: translate(10px, 0px) scale(1); }
+      50%  { transform: translate(-25px, -18px) scale(1.02); }
+      100% { transform: translate(30px, 10px) scale(0.98); }
+    }
+
+    .sparkle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: rgba(255, 250, 200, 0.8);  /* 淡黄色 */
+      border-radius: 50%;                    /* 圆形 */
+      box-shadow: 0 0 12px #f8ffc4;          /* 发光光晕 */
+      animation: riseSparkle 9s infinite;    /* 引用上升动画 */
+      bottom: -20px;                         /* 从底部外面开始 */
+      opacity: 0;                            /* 初始透明 */
+    }
+
+    /* 光点上升动画 */
+    @keyframes riseSparkle {
+      0%   { transform: translateY(0) scale(0.5); opacity: 0; }
+      30%  { opacity: 0.9; }
+      80%  { opacity: 0.5; }
+      100% { transform: translateY(-130vh) translateX(25px) scale(1.4); opacity: 0; }
+    }
+
+    .meadow-hint {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 90px;
+      background: linear-gradient(to top, rgba(190, 215, 180, 0.45) 0%, rgba(200, 225, 190, 0.1) 80%, transparent 100%);
+      z-index: 0;
+      pointer-events: none;
+      backdrop-filter: blur(2px);
+    }
+
+    /* 导航栏*/
+    .nav {
+      position: fixed;         
+      top: 18px;
+      left: 50%;               /* 从中间开始 */
+      transform: translateX(-50%);  
+      width: min(92%, 700px);  /* 宽度最大700px，小屏幕时占92% */
+      background: var(--nav-blur);
+      backdrop-filter: blur(18px);  /* 毛玻璃效果 */
+      border-radius: var(--radius-pill);  /* 大圆角胶囊 */
+      padding: 14px 32px;
+      display: flex;          
+      align-items: center;   
+      justify-content: space-between;  
+      border: 1px solid rgba(255, 255, 250, 0.7);
+      box-shadow: 0 12px 30px rgba(100, 120, 100, 0.12);
+      z-index: 100;            /* 高层级，浮在所有内容之上 */
+      transition: all 0.3s ease;
+    }
+
+    .nav-logo {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 600;
+      font-size: 1.7rem;
+      letter-spacing: 1px;
+      color: #2f4b3c;
+      background: linear-gradient(135deg, #5b7a62, #3f5a45);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 2px 2px 10px rgba(180, 200, 160, 0.3);
+    }
+
+    /* 导航栏右侧链接组 */
+    .nav-links {
+      display: flex;
+      gap: 28px;              /* 链接之间的间距 */
+      align-items: center;
+    }
+
+    .nav-links a {
+      text-decoration: none;   /* 去掉下划线 */
+      font-family: 'Quicksand', 'Noto Serif SC', sans-serif;
+      font-weight: 500;
+      font-size: 1rem;
+      color: #3a4d3e;
+      padding: 6px 14px;
+      border-radius: 24px;
+      background: transparent;
+      transition: all 0.25s ease;
+      letter-spacing: 0.3px;
+      border: 1px solid transparent;
+    }
+
+    /* 鼠标悬停时的效果 */
+    .nav-links a:hover {
+      background: rgba(255, 255, 240, 0.8);
+      color: #1f3b2a;
+      box-shadow: 0 4px 12px rgba(120, 140, 100, 0.2);
+      transform: translateY(-1px);
+      border-color: rgba(130, 170, 130, 0.3);
+    }
+
+    .container {
+      position: relative;
+      z-index: 10;
+      max-width: 850px;
+      margin: 0 auto;          /* 居中 */
+      padding: 140px 24px 60px;  /* 上内边距留出导航栏的空间 */
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 70px;
+    }
+
+    /* 头像框（圆形） */
+    .avatar-frame {
+      width: 110px;
+      height: 110px;
+      margin: 0 auto 25px;     
+      border-radius: 50%;   
+      background: linear-gradient(145deg, #d9eedb, #b8d5be);
+      box-shadow: 0 15px 35px rgba(130, 150, 120, 0.3), 0 0 0 6px rgba(255, 250, 240, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.4rem;
+      backdrop-filter: blur(4px);
+      transition: transform 0.4s ease;
+    }
+
+    /* 鼠标悬停时头像微微放大旋转 */
+    .avatar-frame:hover {
+      transform: scale(1.03) rotate(1deg);
+    }
+
+    .hero h1 {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 400;
+      font-size: 3.1rem;
+      color: #2a3b2d;
+      margin-bottom: 10px;
+      letter-spacing: 2px;
+      text-shadow: 2px 2px 8px rgba(200, 225, 190, 0.5);
+    }
+
+    .hero .tagline {
+      font-family: 'Quicksand', 'Noto Serif SC', sans-serif;
+      font-weight: 400;
+      font-size: 1.2rem;
+      color: #4a5b4a;
+      background: rgba(250, 252, 245, 0.65);
+      display: inline-block;
+      padding: 6px 28px;
+      border-radius: 30px;
+      backdrop-filter: blur(8px);
+      margin-top: 8px;
+      border: 1px solid rgba(255, 255, 250, 0.8);
+    }
+
+    /*         10. 板块标题（"让花成花，让树成树"）*/
+    .section-title {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 400;
+      font-size: 2rem;
+      text-align: center;
+      color: #2d4232;
+      margin: 50px 0 35px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .section-title::before {
+      content: "🌱";
+      font-size: 1.4rem;
+      opacity: 0.7;
+      filter: drop-shadow(0 4px 6px rgba(100,130,90,0.3));
+    }
+    .section-title::after {
+      content: "🍃";
+      font-size: 1.4rem;
+      opacity: 0.7;
+      filter: drop-shadow(0 4px 6px rgba(100,130,90,0.3));
+    }
+
+    /* 11. 兴趣卡片（四个板块：摄影、阅读、编程、碎碎念） */
+   
+    .interests-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;             }
+
+    .interest-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 245, 0.9);
+      border-radius: var(--radius-card);
+      padding: 28px 32px;
+      box-shadow: 0 18px 35px rgba(90, 105, 80, 0.08);
+      transition: all 0.35s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;        /* 小屏幕时换行 */
+    }
+
+    .interest-card:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 248, 0.92);
+      box-shadow: 0 22px 40px rgba(100, 125, 90, 0.18);
+      border-color: rgba(170, 200, 150, 0.6);
+    }
+
+    .card-left {
+      display: flex;
+      align-items: center;
+      gap: 25px;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    /* 卡片图标（大 Emoji） */
+    .interest-emoji {
+      font-size: 2.8rem;
+      background: rgba(210, 230, 200, 0.5);
+      width: 70px;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 22px;
+      box-shadow: 0 6px 18px rgba(140, 160, 120, 0.2);
+      backdrop-filter: blur(4px);
+      flex-shrink: 0;         /* 防止被压缩 */
+    }
+
+    /* 卡片文字区域 */
+    .interest-text {
+      flex: 1;
+    }
+
+    /* 卡片标题 */
+    .interest-text h3 {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 500;
+      font-size: 1.5rem;
+      margin-bottom: 4px;
+      color: #2e4333;
+    }
+
+    /* 卡片描述文字 */
+    .interest-text p {
+      font-family: 'Quicksand', 'Noto Serif SC', sans-serif;
+      color: #4b5b4a;
+      font-weight: 400;
+      font-size: 1rem;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* 卡片右侧的「进入」按钮 */
+    .card-link-btn {
+      display: inline-block;
+      padding: 10px 28px;
+      background: linear-gradient(135deg, #6b8b6b, #4a6a4a);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 30px;
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(80, 110, 80, 0.25);
+      flex-shrink: 0;
+      letter-spacing: 0.5px;
+    }
+
+    /* 按钮悬停效果 */
+    .card-link-btn:hover {
+      background: linear-gradient(135deg, #5a7a5a, #3a5a3a);
+      box-shadow: 0 6px 22px rgba(80, 110, 80, 0.4);
+      transform: translateY(-2px) scale(1.02);
+    }
+    
+    /* 留言板外层容器 */
+    .message-section {
+      margin-top: 60px;
+    }
+
+    /* 留言板的标题栏（点击展开/收起） */
+    .message-header {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 245, 0.9);
+      border-radius: var(--radius-card);
+      padding: 20px 32px;
+      cursor: pointer;           /* 鼠标变手型，表示可点击 */
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 20px rgba(90, 105, 80, 0.06);
+    }
+
+    .message-header:hover {
+      background: rgba(255, 255, 248, 0.92);
+      box-shadow: 0 12px 30px rgba(100, 125, 90, 0.12);
+      border-color: rgba(170, 200, 150, 0.5);
+    }
+
+    .message-header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .message-header-left .icon {
+      font-size: 1.8rem;
+    }
+
+    .message-header-left h3 {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 500;
+      font-size: 1.4rem;
+      color: #2e4333;
+    }
+
+    .message-header-left p {
+      font-family: 'Quicksand', 'Noto Serif SC', sans-serif;
+      color: #5b6b5a;
+      font-size: 0.9rem;
+      margin-left: 8px;
+    }
+
+    /* 展开/收起箭头 */
+    .message-arrow {
+      font-size: 1.4rem;
+      transition: transform 0.4s ease;
+      color: #4a7a55;
+    }
+
+    .message-arrow.open {
+      transform: rotate(180deg);
+    }
+
+    /* 留言板内容（初始隐藏，展开后显示） */
+    .message-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.6s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.4s ease, margin 0.4s ease;
+      opacity: 0;
+      margin-top: 0;
+    }
+
+    .message-body.open {
+      max-height: 900px;
+      opacity: 1;
+      margin-top: 16px;
+    }
+
+    /* 留言板内部卡片 */
+    .message-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 245, 0.9);
+      border-radius: var(--radius-card);
+      padding: 32px;
+      box-shadow: 0 8px 20px rgba(90, 105, 80, 0.06);
+    }
+
+    .message-card p {
+      font-family: 'Quicksand', 'Noto Serif SC', sans-serif;
+      color: #3f5a44;
+      margin-bottom: 20px;
+    }
+
+    /* 留言表单 */
+    .message-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .message-form .form-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .message-form .form-row input {
+      flex: 1;
+      min-width: 180px;
+    }
+
+    .message-form input,
+    .message-form textarea {
+      padding: 12px 18px;
+      border: 1px solid rgba(160, 190, 160, 0.4);
+      border-radius: 16px;
+      font-family: 'Quicksand', 'Noto Serif SC', sans-serif;
+      font-size: 0.95rem;
+      background: rgba(255, 255, 250, 0.7);
+      backdrop-filter: blur(4px);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      outline: none;           /* 去掉默认的聚焦边框 */
+    }
+
+    .message-form input:focus,
+    .message-form textarea:focus {
+      border-color: #7ca07a;
+      box-shadow: 0 0 0 3px rgba(120, 180, 120, 0.2);
+    }
+
+    .message-form textarea {
+      resize: vertical;        /* 允许垂直拉伸 */
+      min-height: 100px;
+    }
+
+    /* 提交按钮 */
+    .submit-btn {
+      padding: 12px 32px;
+      background: linear-gradient(135deg, #6b8b6b, #4a6a4a);
+      color: #fff;
+      border: none;
+      border-radius: 30px;
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 500;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(80, 110, 80, 0.25);
+      align-self: flex-start;
+    }
+
+    .submit-btn:hover {
+      background: linear-gradient(135deg, #5a7a5a, #3a5a3a);
+      box-shadow: 0 6px 22px rgba(80, 110, 80, 0.4);
+      transform: translateY(-2px);
+    }
+
+    /* 留言列表 */
+    .message-list {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px dashed rgba(160, 190, 160, 0.3);
+    }
+
+    .message-list h4 {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 400;
+      font-size: 1.1rem;
+      color: #2e4333;
+      margin-bottom: 16px;
+    }
+
+    /* 单条留言 */
+    .message-item {
+      background: rgba(255, 255, 250, 0.5);
+      border-radius: 16px;
+      padding: 14px 20px;
+      margin-bottom: 12px;
+      border-left: 4px solid #88b5a1;
+    }
+
+    .message-item .msg-name {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #1a3d22;
+    }
+
+    .message-item .msg-time {
+      font-family: 'Quicksand', sans-serif;
+      font-size: 0.75rem;
+      color: #7a8a7a;
+      margin-left: 12px;
+    }
+
+    .message-item .msg-content {
+      font-family: 'Quicksand', 'Noto Serif SC', sans-serif;
+      color: #2b4a31;
+      font-size: 0.95rem;
+      margin-top: 4px;
+    }
+
+    /*  传送门 */
+    .portal-section {
+      max-width: 850px;
+      margin: 50px auto 0;
+      padding: 0 24px;
+    }
+
+    .portal-card {
+      background: rgba(255, 255, 250, 0.7);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(180, 200, 160, 0.5);
+      border-radius: 24px;
+      padding: 32px;
+      text-align: center;
+      box-shadow: 0 12px 30px rgba(100, 120, 90, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .portal-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 18px 40px rgba(100, 120, 90, 0.18);
+    }
+
+    .portal-icon {
+      font-size: 2.6rem;
+      margin-bottom: 12px;
+    }
+
+    .portal-card h3 {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 1.4rem;
+      color: #2e4333;
+      margin-bottom: 8px;
+    }
+
+    .portal-card p {
+      color: #5b6b5a;
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+    }
+
+    .portal-btn {
+      display: inline-block;
+      padding: 10px 28px;
+      background: linear-gradient(135deg, #6b8b6b, #4a6a4a);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 30px;
+      font-weight: 500;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(80, 110, 80, 0.25);
+    }
+
+    .portal-btn:hover {
+      background: linear-gradient(135deg, #5a7a5a, #3a5a3a);
+      box-shadow: 0 6px 22px rgba(80, 110, 80, 0.4);
+      transform: translateY(-2px);
+    }
+
+      .footer {
+      text-align: center;
+      margin-top: 80px;
+      padding: 28px 20px;
+      color: #1f3d2a;
+      font-size: 1.0rem;
+      border-top: 1px dashed rgba(100, 130, 90, 0.5);
+      background: rgba(250, 252, 245, 0.55);
+      backdrop-filter: blur(5px);
+      border-radius: 30px 30px 0 0;
+      font-family: 'Quicksand', 'Noto Serif SC', sans-serif;
+      font-weight: 500;
+    }
+
+    .footer a {
+      color: #1a4a22;
+      text-decoration: none;
+      font-weight: 600;
+      border-bottom: 2px solid #7ca07a;
+      padding-bottom: 2px;
+      transition: all 0.2s;
+    }
+
+    .footer a:hover {
+      color: #0d2b0d;
+      border-bottom-color: #3d6b3d;
+    }
+    
+    /* 初始状态：透明 + 向下偏移 28px */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.9s cubic-bezier(0.23, 1, 0.32, 1), transform 0.9s cubic-bezier(0.23, 1, 0.32, 1);
+      will-change: opacity, transform;
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /*响应式适配（手机/小屏幕）*/
+    @media (max-width: 600px) {
+      .nav {
+        padding: 12px 20px;
+        width: 94%;
+      }
+      .nav-links {
+        gap: 12px;
+      }
+      .nav-logo {
+        font-size: 1.5rem;
+      }
+     
+      .hero h1 {
+        font-size: 2.4rem;
+      }
+ 
+      .interest-card {
+        flex-direction: column;
+        text-align: center;
+      }
+      .card-left {
+        flex-direction: column;
+      }
+      .card-link-btn {
+        width: 100%;
+        text-align: center;
+      }
+      
+      .section-title {
+        font-size: 1.8rem;
+      }
+      
+      .message-form .form-row {
+        flex-direction: column;
+      }
+      .message-form .form-row input {
+        min-width: auto;
+      }
+      .submit-btn {
+        align-self: stretch;
+        text-align: center;
+      }
+      
+      .message-header {
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .message-header-left p {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sky-layer">
+    <div class="cloud cloud-1"></div>
+    <div class="cloud cloud-2"></div>
+    <div class="cloud cloud-3"></div>
+    <div class="cloud cloud-4"></div>
+    
+    <div class="sparkle" style="left: 8%; animation-delay: 0s;"></div>
+    <div class="sparkle" style="left: 22%; animation-delay: 2.3s; width: 5px; height: 5px;"></div>
+    <div class="sparkle" style="left: 45%; animation-delay: 4.7s;"></div>
+    <div class="sparkle" style="left: 68%; animation-delay: 1.8s; background: rgba(220, 245, 200, 0.9);"></div>
+    <div class="sparkle" style="left: 81%; animation-delay: 5.5s;"></div>
+    <div class="sparkle" style="left: 35%; animation-delay: 7.2s; width: 7px; height: 7px;"></div>
+  </div>
+  
+  <div class="meadow-hint"></div>
+  <nav class="nav">
+   <div class="nav-logo">Yan2684</div>
+    <div class="nav-links">
+      <a href="#home">首页</a>
+      <a href="#interests">兴趣</a>
+      <a href="#message">留言</a>   <!-- 新增留言板锚点 -->
+      <a href="#contact">联系</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <section id="home" class="hero fade-in">
+      <div class="avatar-frame">🍀</div>
+      <h1>Yan2684</h1>
+        <div class="tagline">风与代码之间 · 用技术守住重要的东西</div>
+    </section>
+
+     <section id="interests">
+      <h2 class="section-title fade-in">让花成花，让树成树</h2>
+      
+      <div class="interests-grid">
+        <!-- 卡片 1：摄影 -->
+        <div class="interest-card fade-in">
+          <div class="card-left">
+            <div class="interest-emoji">📷</div>
+            <div class="interest-text">
+              <h3>摄影 · 捕捉世界的每一帧</h3>
+              <p>用镜头记录光影与瞬间，在行走中遇见美好。</p>
+            </div>
+          </div>
+         <a href="photography.html" class="card-link-btn">进入 →</a>
+        </div>
+
+        <!-- 卡片 2：阅读 -->
+        <div class="interest-card fade-in">
+          <div class="card-left">
+            <div class="interest-emoji">📖</div>
+            <div class="interest-text">
+              <h3>阅读 · 字里行间有天地</h3>
+              <p>从诗词到小说，从哲学到科技，书页间有无限宇宙。</p>
+            </div>
+          </div>
+          <a href="reading.html" class="card-link-btn">进入 →</a>
+        </div>
+
+        <!-- 卡片 3：编程 -->
+        <div class="interest-card fade-in">
+          <div class="card-left">
+            <div class="interest-emoji">💻</div>
+            <div class="interest-text">
+              <h3>编程 · 用逻辑构建世界</h3>
+              <p>代码是另一种语言，帮助探索新的世界。</p>
+            </div>
+          </div>
+          <a href="coding.html" class="card-link-btn">进入 →</a>
+        </div>
+
+        <!-- 卡片 4：碎碎念 -->
+        <div class="interest-card fade-in">
+          <div class="card-left">
+            <div class="interest-emoji">✍️</div>
+            <div class="interest-text">
+              <h3>碎碎念 · 日常与随想</h3>
+              <p>一些零散的思绪、片段的生活、偶然的感悟。</p>
+            </div>
+          </div>
+          <a href="notes.html" class="card-link-btn">进入 →</a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==========================================================
+          3.3 留言板（可展开/收起）
+          ========================================================== -->
+    <section id="message" class="message-section fade-in">
+      
+      <!-- 留言板标题栏（点击展开/收起） -->
+      <div class="message-header" onclick="toggleMessage()">
+        <div class="message-header-left">
+          <span class="icon">💬</span>
+          <h3>留言板</h3>
+          <p>— 留下你想说的话</p>
+        </div>
+        <span class="message-arrow" id="messageArrow">▾</span>
+      </div>
+
+      <!-- 留言板内容（初始隐藏） -->
+      <div class="message-body" id="messageBody">
+        <div class="message-card">
+          
+          <!-- 提示文字 -->
+          <p>🌿 在这里留下你的足迹吧～ 我会认真阅读每一条留言。</p>
+
+          <!-- 留言表单 -->
+          <form class="message-form" id="messageForm">
+            <div class="form-row">
+              <input type="text" id="msgName" placeholder="你的名字" required>
+              <input type="email" id="msgEmail" placeholder="邮箱（选填）">
+            </div>
+            <textarea id="msgContent" placeholder="写下你想说的话..." required></textarea>
+            <button type="submit" class="submit-btn">✨ 发送留言</button>
+          </form>
+
+          <!-- 已存在的留言列表 -->
+          <div class="message-list">
+            <h4>📝 已有留言</h4>
+            
+             <!-- 示例留言 2 -->
+            <div class="message-item">
+              <span class="msg-name">代码诗人</span>
+              <span class="msg-time">2026-08-03 21:15</span>
+              <div class="msg-content">"风与代码之间" —— 这句话太棒了，深有同感。</div>
+            </div>
+            
+            <!-- 示例留言 3 -->
+            <div class="message-item">
+              <span class="msg-name">小森林</span>
+              <span class="msg-time">2026-08-02 09:47</span>
+              <div class="msg-content">期待摄影板块更新！想看你拍的云朵 ☁️</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+      <section class="portal-section fade-in">
+      <div class="portal-card">
+        <div class="portal-icon">🔐</div>
+        <h3>个人简历</h3>
+        <p>想了解我的专业背景？前往加密保护的简历页面。</p>
+        <a href="resume.html" class="portal-btn">进入传送门 →</a>
+      </div>
+    </section>
+
+     <footer id="contact" class="footer fade-in">
+      <p>🌿 想一起聊聊植物或代码？ <a href="mailto:yanshens2684@outlook.com">给 Yan2684 写信</a></p>
+      <p style="font-size:0.85rem; margin-top:10px; opacity:0.8;">像龙猫守护森林一样守护你的隐私</p>
+    </footer>
+
+  </div>  <!-- .container 结束 -->
+
+  <script>
+    function toggleMessage() {
+      const body = document.getElementById('messageBody');
+      const arrow = document.getElementById('messageArrow');
+
+      body.classList.toggle('open');
+      arrow.classList.toggle('open');
+    }
+    document.getElementById('messageForm').addEventListener('submit', function(e) {
+      e.preventDefault();  // 阻止页面刷新
+      
+      // 获取用户输入
+      const name = document.getElementById('msgName').value.trim() || '匿名';
+      const content = document.getElementById('msgContent').value.trim();
+      
+      if (!content) {
+        alert('请写下你想说的话～');
+        return;
+      }
+ 
+      const now = new Date();
+      const timeStr = now.getFullYear() + '-' + 
+                      String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                      String(now.getDate()).padStart(2, '0') + ' ' +
+                      String(now.getHours()).padStart(2, '0') + ':' +
+                      String(now.getMinutes()).padStart(2, '0');
+      
+      const list = document.querySelector('.message-list');
+      const newItem = document.createElement('div');
+      newItem.className = 'message-item';
+      newItem.innerHTML = `
+        <span class="msg-name">${escapeHtml(name)}</span>
+        <span class="msg-time">${timeStr}</span>
+        <div class="msg-content">${escapeHtml(content)}</div>
+      `;
+      
+      // 插入到列表最前面
+      list.insertBefore(newItem, list.querySelector('.message-item'));
+      
+      // 清空表单
+      document.getElementById('msgName').value = '';
+      document.getElementById('msgEmail').value = '';
+      document.getElementById('msgContent').value = '';
+      
+      // 自动展开留言板，让用户看到新留言
+      const body = document.getElementById('messageBody');
+      const arrow = document.getElementById('messageArrow');
+      if (!body.classList.contains('open')) {
+        body.classList.add('open');
+        arrow.classList.add('open');
+      }
+    });
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    (function() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { 
+        threshold: 0.15,           // 当元素 15% 可见时触发
+        rootMargin: "0px 0px -30px 0px"
+      });
+
+      document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+    })();
+  </script>
+</body>
+</html>

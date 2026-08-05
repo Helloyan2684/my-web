@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Yan2684 · 编程 · 密码学</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600&family=Noto+Serif+SC:wght@300;400;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Serif SC', 'JetBrains Mono', 'Quicksand', serif;
+            min-height: 100vh;
+            background: #0a0612;
+            background-image: 
+                radial-gradient(ellipse at 30% 20%, rgba(120, 60, 200, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 80%, rgba(80, 40, 180, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(60, 20, 120, 0.04) 0%, transparent 70%),
+                linear-gradient(180deg, #0a0612 0%, #120a1e 40%, #0e0818 100%);
+            background-attachment: fixed;
+            color: #e8e0f0;
+            line-height: 1.8;
+            overflow-x: hidden;
+            position: relative;
+        }
+        .binary-flow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 300;
+            line-height: 1.2;
+        }
+
+        .binary-column {
+            position: absolute;
+            color: rgba(140, 100, 210, 0.10);
+            font-size: 14px;
+            animation: fallDown linear infinite;
+            white-space: nowrap;
+            letter-spacing: 2px;
+        }
+
+        .binary-column .highlight {
+            color: rgba(180, 140, 230, 0.18);
+        }
+
+        @keyframes fallDown {
+            0% {
+                transform: translateY(-100%) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(110vh) translateX(20px);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 100px 24px 60px;
+        }
+
+        .nav-bar {
+            position: fixed;
+            top: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(92%, 700px);
+            background: rgba(16, 10, 30, 0.80);
+            backdrop-filter: blur(18px);
+            border-radius: 40px;
+            padding: 12px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid rgba(140, 100, 210, 0.10);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+        }
+
+        .nav-bar .logo {
+            font-family: 'JetBrains Mono', 'Noto Serif SC', monospace;
+            font-weight: 500;
+            font-size: 1.3rem;
+            color: #c8b0e8;
+            background: linear-gradient(135deg, #c8b0e8, #a080c8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+        }
+
+        .nav-bar a {
+            text-decoration: none;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: rgba(200, 180, 230, 0.35);
+            padding: 6px 18px;
+            border-radius: 24px;
+            transition: all 0.25s ease;
+            border: 1px solid transparent;
+        }
+
+        .nav-bar a:hover {
+            background: rgba(140, 100, 210, 0.08);
+            color: #c8b0e8;
+            border-color: rgba(140, 100, 210, 0.10);
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .page-header h1 {
+            font-family: 'JetBrains Mono', 'Noto Serif SC', monospace;
+            font-weight: 300;
+            font-size: 2.4rem;
+            color: #e8e0f0;
+            text-shadow: 0 0 60px rgba(140, 100, 210, 0.06);
+            letter-spacing: 4px;
+        }
+
+        .page-header h1 span {
+            color: #c8b0e8;
+        }
+
+        .page-header .subtitle {
+            font-family: 'Quicksand', 'Noto Serif SC', sans-serif;
+            font-weight: 300;
+            font-size: 0.9rem;
+            color: rgba(200, 180, 230, 0.25);
+            margin-top: 4px;
+            letter-spacing: 4px;
+        }
+
+        .category-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .category-tab {
+            padding: 10px 28px;
+            border-radius: 30px;
+            font-family: 'Quicksand', 'Noto Serif SC', sans-serif;
+            font-weight: 400;
+            font-size: 0.9rem;
+            background: rgba(30, 18, 60, 0.3);
+            border: 1px solid rgba(140, 100, 210, 0.06);
+            color: rgba(200, 180, 230, 0.35);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+        }
+
+        .category-tab:hover {
+            background: rgba(40, 24, 80, 0.4);
+            color: rgba(220, 200, 240, 0.55);
+            border-color: rgba(140, 100, 210, 0.08);
+        }
+
+        .category-tab.active {
+            background: rgba(140, 100, 210, 0.08);
+            border-color: rgba(140, 100, 210, 0.12);
+            color: #c8b0e8;
+            box-shadow: 0 0 40px rgba(140, 100, 210, 0.03);
+        }
+
+        .category-content {
+            display: none;
+            animation: fadeUp 0.5s ease;
+        }
+
+        .category-content.active {
+            display: block;
+        }
+
+        @keyframes fadeUp {
+            0% { opacity: 0; transform: translateY(15px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .code-fold {
+            background: rgba(20, 12, 40, 0.60);  /* 加深背景 */
+            backdrop-filter: blur(8px);
+            border-radius: 18px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(140, 100, 210, 0.06);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .code-fold:hover {
+            border-color: rgba(140, 100, 210, 0.08);
+            background: rgba(30, 18, 60, 0.65);
+        }
+
+        .code-fold-header {
+            padding: 16px 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            user-select: none;
+            transition: all 0.3s ease;
+        }
+
+        .code-fold-header:hover {
+            background: rgba(140, 100, 210, 0.03);
+        }
+
+        .code-fold-header .item-info {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .code-fold-header .item-info .item-icon {
+            font-size: 1.6rem;
+            flex-shrink: 0;
+        }
+
+        .code-fold-header .item-info .item-meta .item-title {
+            font-family: 'JetBrains Mono', 'Noto Serif SC', monospace;
+            font-weight: 400;
+            font-size: 1.05rem;
+            color: #e8e0f0;  /* 调亮 */
+            letter-spacing: 0.5px;
+        }
+
+        .code-fold-header .item-info .item-meta .item-status {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.7rem;
+            color: rgba(200, 180, 230, 0.20);
+        }
+
+        .code-fold-header .fold-arrow {
+            font-size: 1.2rem;
+            color: rgba(200, 180, 230, 0.15);
+            transition: transform 0.4s ease;
+            flex-shrink: 0;
+        }
+
+        .code-fold-header .fold-arrow.open {
+            transform: rotate(180deg);
+        }
+
+        .code-fold-header .lock-badge {
+            font-size: 0.8rem;
+            color: rgba(200, 180, 230, 0.20);
+            padding: 2px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(140, 100, 210, 0.06);
+            font-family: 'Quicksand', sans-serif;
+            flex-shrink: 0;
+        }
+
+        .code-fold-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease;
+            opacity: 0;
+            padding: 0 24px;
+        }
+
+        .code-fold-body.open {
+            max-height: 800px;
+            opacity: 1;
+            padding: 0 24px 24px;
+        }
+
+        .code-fold-body .content-desc {
+            font-family: 'Quicksand', 'Noto Serif SC', sans-serif;
+            font-weight: 300;
+            font-size: 0.95rem;
+            color: rgba(220, 210, 240, 0.70);  /* 调亮 */
+            line-height: 1.9;
+            letter-spacing: 0.5px;
+        }
+
+        .code-fold-body .content-desc code {
+            font-family: 'JetBrains Mono', monospace;
+            color: #c8b0e8;
+            background: rgba(140, 100, 210, 0.06);
+            padding: 2px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .code-fold-body .content-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: #c8b0e8;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(140, 100, 210, 0.10);
+            padding-bottom: 2px;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .code-fold-body .content-link:hover {
+            color: #dcc8f0;
+            border-bottom-color: rgba(140, 100, 210, 0.20);
+        }
+
+        /* 解锁输入框 */
+        .unlock-area {
+            margin-top: 12px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .unlock-area input {
+            padding: 8px 16px;
+            border: 1px solid rgba(140, 100, 210, 0.08);
+            border-radius: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            background: rgba(10, 6, 20, 0.5);
+            color: #e8e0f0;
+            outline: none;
+            transition: all 0.3s ease;
+            min-width: 180px;
+        }
+
+        .unlock-area input:focus {
+            border-color: rgba(140, 100, 210, 0.18);
+            box-shadow: 0 0 30px rgba(140, 100, 210, 0.03);
+        }
+
+        .unlock-area input::placeholder {
+            color: rgba(200, 180, 230, 0.18);
+        }
+
+        .unlock-area .unlock-btn {
+            padding: 8px 22px;
+            border: 1px solid rgba(140, 100, 210, 0.10);
+            border-radius: 12px;
+            background: rgba(140, 100, 210, 0.06);
+            color: rgba(210, 190, 240, 0.45);
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 500;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .unlock-area .unlock-btn:hover {
+            background: rgba(140, 100, 210, 0.10);
+            color: #c8b0e8;
+            border-color: rgba(140, 100, 210, 0.14);
+        }
+
+        .unlock-area .unlock-error {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.8rem;
+            color: rgba(220, 120, 140, 0.45);
+            min-height: 24px;
+        }
+
+        .unlock-area .unlock-success {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.8rem;
+            color: rgba(120, 220, 180, 0.35);
+        }
+
+        /* 解锁后显示内容 */
+        .locked-content {
+            display: none;
+            margin-top: 12px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(140, 100, 210, 0.06);
+        }
+
+        .locked-content.show {
+            display: block;
+        }
+
+        .locked-content p {
+            font-family: 'Quicksand', 'Noto Serif SC', sans-serif;
+            font-weight: 300;
+            font-size: 0.95rem;
+            color: rgba(220, 210, 240, 0.70);  /* 调亮 */
+            line-height: 1.9;
+        }
+
+        .locked-content .demo-game {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .locked-content .demo-game button {
+            padding: 8px 20px;
+            border: 1px solid rgba(140, 100, 210, 0.08);
+            border-radius: 12px;
+            background: rgba(140, 100, 210, 0.04);
+            color: rgba(210, 190, 240, 0.35);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.85rem;
+        }
+
+        .locked-content .demo-game button:hover {
+            background: rgba(140, 100, 210, 0.08);
+            color: #c8b0e8;
+            border-color: rgba(140, 100, 210, 0.10);
+        }
+
+        .locked-content .demo-game .game-result {
+            font-family: 'JetBrains Mono', monospace;
+            color: rgba(200, 180, 230, 0.35);
+            font-size: 0.9rem;
+        }
+
+        /* ==========================================================
+              留言区（文字调亮版）
+             ========================================================== */
+        .message-section {
+            margin-top: 50px;
+            background: rgba(20, 12, 40, 0.50);  /* 加深背景 */
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 32px 36px;
+            border: 1px solid rgba(140, 100, 210, 0.06);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .message-section .section-title {
+            font-family: 'JetBrains Mono', 'Noto Serif SC', monospace;
+            font-weight: 400;
+            font-size: 1.3rem;
+            color: #e8e0f0;
+            margin-bottom: 4px;
+            letter-spacing: 2px;
+        }
+
+        .message-section .section-title .code-bracket {
+            color: rgba(200, 180, 230, 0.18);
+        }
+
+        .message-section .section-desc {
+            font-family: 'Quicksand', 'Noto Serif SC', sans-serif;
+            font-weight: 300;
+            font-size: 0.85rem;
+            color: rgba(200, 180, 230, 0.25);
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        .message-form {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .message-form .form-row {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .message-form .form-row input {
+            flex: 1;
+            min-width: 160px;
+        }
+
+        .message-form input,
+        .message-form textarea {
+            padding: 12px 18px;
+            border: 1px solid rgba(140, 100, 210, 0.06);
+            border-radius: 14px;
+            font-family: 'Quicksand', 'Noto Serif SC', sans-serif;
+            font-size: 0.95rem;
+            background: rgba(10, 6, 20, 0.4);
+            color: #e8e0f0;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .message-form input::placeholder,
+        .message-form textarea::placeholder {
+            color: rgba(200, 180, 230, 0.15);
+        }
+
+        .message-form input:focus,
+        .message-form textarea:focus {
+            border-color: rgba(140, 100, 210, 0.10);
+            background: rgba(20, 12, 40, 0.5);
+            box-shadow: 0 0 40px rgba(140, 100, 210, 0.02);
+        }
+
+        .message-form textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .message-form .submit-btn {
+            padding: 12px 32px;
+            background: rgba(140, 100, 210, 0.06);
+            border: 1px solid rgba(140, 100, 210, 0.08);
+            border-radius: 30px;
+            color: rgba(210, 190, 240, 0.35);
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            align-self: flex-start;
+            letter-spacing: 1px;
+        }
+
+        .message-form .submit-btn:hover {
+            background: rgba(140, 100, 210, 0.08);
+            border-color: rgba(140, 100, 210, 0.12);
+            color: #c8b0e8;
+            transform: translateY(-2px);
+        }
+
+        .message-list {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(140, 100, 210, 0.04);
+        }
+
+        .message-list .list-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 300;
+            font-size: 0.75rem;
+            color: rgba(200, 180, 230, 0.12);
+            margin-bottom: 14px;
+            letter-spacing: 2px;
+        }
+
+        .message-item {
+            background: rgba(10, 6, 20, 0.45);  /* 加深背景 */
+            border-radius: 16px;
+            padding: 14px 20px;
+            margin-bottom: 10px;
+            border-left: 2px solid rgba(140, 100, 210, 0.06);
+            transition: all 0.3s ease;
+        }
+
+        .message-item:hover {
+            background: rgba(20, 12, 40, 0.55);
+            border-left-color: rgba(140, 100, 210, 0.08);
+        }
+
+        .message-item .msg-name {
+            font-family: 'JetBrains Mono', 'Noto Serif SC', monospace;
+            font-weight: 400;
+            font-size: 0.85rem;
+            color: #e8e0f0;
+        }
+
+        .message-item .msg-time {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.65rem;
+            color: rgba(200, 180, 230, 0.15);
+            margin-left: 12px;
+        }
+
+        .message-item .msg-content {
+            font-family: 'Quicksand', 'Noto Serif SC', sans-serif;
+            color: rgba(220, 210, 240, 0.60);  /* 调亮 */
+            font-size: 0.9rem;
+            margin-top: 4px;
+            line-height: 1.7;
+        }
+
+        /* ==========================================================
+              返回链接
+             ========================================================== */
+        .back-link {
+            display: inline-block;
+            margin-top: 16px;
+            color: rgba(200, 180, 230, 0.12);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(140, 100, 210, 0.03);
+            padding-bottom: 4px;
+            transition: all 0.3s ease;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        .back-link:hover {
+            color: rgba(200, 180, 230, 0.25);
+            border-bottom-color: rgba(140, 100, 210, 0.06);
+        }
+
+        /* ==========================================================
+              页脚
+             ========================================================== */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: rgba(200, 180, 230, 0.06);
+            font-size: 0.65rem;
+            font-family: 'JetBrains Mono', monospace;
+            border-top: 1px solid rgba(140, 100, 210, 0.03);
+            letter-spacing: 2px;
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 80px 16px 40px; }
+            .nav-bar { padding: 10px 18px; width: 96%; }
+            .nav-bar .logo { font-size: 1.1rem; }
+            .page-header h1 { font-size: 1.6rem; }
+            
+            .category-tabs { gap: 8px; }
+            .category-tab { padding: 8px 16px; font-size: 0.8rem; }
+            
+            .code-fold-header { padding: 14px 16px; }
+            .code-fold-header .item-info .item-icon { font-size: 1.2rem; }
+            .code-fold-header .item-info .item-meta .item-title { font-size: 0.9rem; }
+            .code-fold-body { padding: 0 16px; }
+            .code-fold-body.open { padding: 0 16px 18px; }
+            
+            .unlock-area { flex-direction: column; align-items: stretch; }
+            .unlock-area input { min-width: auto; }
+            .unlock-area .unlock-btn { align-self: flex-start; }
+            
+            .message-section { padding: 24px 20px; }
+            .message-form .form-row { flex-direction: column; }
+            .message-form .form-row input { min-width: auto; }
+            .message-form .submit-btn { align-self: stretch; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="binary-flow" id="binaryFlow"></div>
+
+    <nav class="nav-bar">
+        <div class="logo">&lt; Yan2684 /&gt;</div>
+        <a href="Yan2684.html">← 返回主页</a>
+    </nav>
+
+    <div class="container">
+
+        <div class="page-header fade-in">
+            <h1>&lt; <span>代码</span> · 密码 &gt;</h1>
+            <div class="subtitle">/* 在 0 与 1 之间，构建安全的世界 */</div>
+        </div>
+
+        <div class="category-tabs fade-in">
+            <span class="category-tab active" data-category="games">🎮 小游戏</span>
+            <span class="category-tab" data-category="crypto">🔐 密码知识分享</span>
+            <span class="category-tab" data-category="faq">❓ FAQ</span>
+            <span class="category-tab" data-category="tools">🛠️ 好用推荐</span>
+        </div>
+
+        <!-- ===== 小游戏 ===== -->
+        <div class="category-content active" id="category-games">
+
+            <div class="code-fold fade-in">
+                <div class="code-fold-header" onclick="toggleFold(this)">
+                    <div class="item-info">
+                        <span class="item-icon">🎯</span>
+                        <div class="item-meta">
+                            <div class="item-title">猜数字 · 密码破译版</div>
+                            <div class="item-status">需要密码解锁</div>
+                        </div>
+                    </div>
+                    <span class="lock-badge">🔒</span>
+                    <span class="fold-arrow">▾</span>
+                </div>
+                <div class="code-fold-body">
+                    <div class="content-desc">
+                        一个简单的猜数字游戏，但数字被"加密"了——你需要通过提示推断出正确的数字。<br>
+                        密码：<code>game2026</code>
+                    </div>
+                    <div class="unlock-area">
+                        <input type="password" id="gameUnlock" placeholder="输入解锁密码..." class="unlock-input">
+                        <button class="unlock-btn" onclick="unlockItem('gameUnlock', 'gameContent', 'gameError', 'game2026')">🔓 解锁</button>
+                        <span class="unlock-error" id="gameError"></span>
+                    </div>
+                    <div class="locked-content" id="gameContent">
+                        <p>🎮 欢迎来到「密码破译版 · 猜数字」！</p>
+                        <div class="demo-game">
+                            <button onclick="guessNumber()">🔢 猜一个数字 (1-100)</button>
+                            <span class="game-result" id="gameResult">点击开始游戏</span>
+                        </div>
+                        <p style="margin-top:8px; font-size:0.85rem; color:rgba(200,180,230,0.25);">
+                            💡 提示：每次猜测会告诉你"高了"还是"低了"
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-fold fade-in">
+                <div class="code-fold-header" onclick="toggleFold(this)">
+                    <div class="item-info">
+                        <span class="item-icon">🧩</span>
+                        <div class="item-meta">
+                            <div class="item-title">密码逻辑 · 小测验</div>
+                            <div class="item-status">需要密码解锁</div>
+                        </div>
+                    </div>
+                    <span class="lock-badge">🔒</span>
+                    <span class="fold-arrow">▾</span>
+                </div>
+                <div class="code-fold-body">
+                    <div class="content-desc">
+                        测试你的密码学基础知识！一共 3 道选择题。<br>
+                        密码：<code>crypto101</code>
+                    </div>
+                    <div class="unlock-area">
+                        <input type="password" id="quizUnlock" placeholder="输入解锁密码..." class="unlock-input">
+                        <button class="unlock-btn" onclick="unlockItem('quizUnlock', 'quizContent', 'quizError', 'crypto101')">🔓 解锁</button>
+                        <span class="unlock-error" id="quizError"></span>
+                    </div>
+                    <div class="locked-content" id="quizContent">
+                        <p>📝 <strong>密码学小测验</strong></p>
+                        <p style="font-size:0.85rem; color:rgba(220,210,240,0.55);">
+                            1. 以下哪个是古典密码？<br>
+                            &nbsp;&nbsp;A. AES &nbsp;&nbsp; B. 凯撒密码 &nbsp;&nbsp; C. RSA<br><br>
+                            2. "密钥长度"越长，安全性通常？<br>
+                            &nbsp;&nbsp;A. 越高 &nbsp;&nbsp; B. 越低 &nbsp;&nbsp; C. 不变<br><br>
+                            3. 以下哪个是国密算法？<br>
+                            &nbsp;&nbsp;A. SM4 &nbsp;&nbsp; B. AES &nbsp;&nbsp; C. DES
+                        </p>
+                        <p style="font-size:0.8rem; color:rgba(200,180,230,0.25); margin-top:6px;">
+                            💡 答案在最后一项「好用推荐」中找~
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ===== 密码知识分享 ===== -->
+        <div class="category-content" id="category-crypto">
+
+            <div class="code-fold fade-in">
+                <div class="code-fold-header" onclick="toggleFold(this)">
+                    <div class="item-info">
+                        <span class="item-icon">📜</span>
+                        <div class="item-meta">
+                            <div class="item-title">古典密码 · 凯撒密码</div>
+                            <div class="item-status">需要密码解锁</div>
+                        </div>
+                    </div>
+                    <span class="lock-badge">🔒</span>
+                    <span class="fold-arrow">▾</span>
+                </div>
+                <div class="code-fold-body">
+                    <div class="content-desc">
+                        凯撒密码是最古老的加密方式之一，通过位移字母来加密信息。<br>
+                        密码：<code>caesar</code>
+                    </div>
+                    <div class="unlock-area">
+                        <input type="password" id="caesarUnlock" placeholder="输入解锁密码..." class="unlock-input">
+                        <button class="unlock-btn" onclick="unlockItem('caesarUnlock', 'caesarContent', 'caesarError', 'caesar')">🔓 解锁</button>
+                        <span class="unlock-error" id="caesarError"></span>
+                    </div>
+                    <div class="locked-content" id="caesarContent">
+                        <p>🔐 <strong>凯撒密码 · 原理</strong></p>
+                        <p style="font-size:0.9rem; color:rgba(220,210,240,0.55);">
+                            将字母表中的每个字母向后（或向前）移动固定位数。<br><br>
+                            <code>明文: HELLO → 位移3 → 密文: KHOOR</code><br><br>
+                            📖 这是密码学中最基础的"替换密码"，为现代加密奠定了基础。
+                        </p>
+                        <a href="https://zh.wikipedia.org/wiki/%E5%87%AF%E6%92%92%E5%AF%86%E7%A0%81" target="_blank" class="content-link">📖 深入了解 →</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-fold fade-in">
+                <div class="code-fold-header" onclick="toggleFold(this)">
+                    <div class="item-info">
+                        <span class="item-icon">🔐</span>
+                        <div class="item-meta">
+                            <div class="item-title">对称加密 · SM4 国密</div>
+                            <div class="item-status">需要密码解锁</div>
+                        </div>
+                    </div>
+                    <span class="lock-badge">🔒</span>
+                    <span class="fold-arrow">▾</span>
+                </div>
+                <div class="code-fold-body">
+                    <div class="content-desc">
+                        SM4 是中国国家密码管理局发布的对称加密算法，广泛应用于金融、政务等领域。<br>
+                        密码：<code>sm4china</code>
+                    </div>
+                    <div class="unlock-area">
+                        <input type="password" id="sm4Unlock" placeholder="输入解锁密码..." class="unlock-input">
+                        <button class="unlock-btn" onclick="unlockItem('sm4Unlock', 'sm4Content', 'sm4Error', 'sm4china')">🔓 解锁</button>
+                        <span class="unlock-error" id="sm4Error"></span>
+                    </div>
+                    <div class="locked-content" id="sm4Content">
+                        <p>🇨🇳 <strong>SM4 国密算法</strong></p>
+                        <p style="font-size:0.9rem; color:rgba(220,210,240,0.55);">
+                            • 分组长度：128 位<br>
+                            • 密钥长度：128 位<br>
+                            • 结构：Feistel 网络（32 轮）<br><br>
+                            🛡️ SM4 已广泛应用于移动支付、电子政务等场景，是中国信息安全的重要基石。
+                        </p>
+                        <a href="https://zh.wikipedia.org/wiki/SM4" target="_blank" class="content-link">📖 深入了解 →</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-fold fade-in">
+                <div class="code-fold-header" onclick="toggleFold(this)">
+                    <div class="item-info">
+                        <span class="item-icon">🔑</span>
+                        <div class="item-meta">
+                            <div class="item-title">非对称加密 · RSA 原理</div>
+                            <div class="item-status">需要密码解锁</div>
+                        </div>
+                    </div>
+                    <span class="lock-badge">🔒</span>
+                    <span class="fold-arrow">▾</span>
+                </div>
+                <div class="code-fold-body">
+                    <div class="content-desc">
+                        RSA 是最经典的非对称加密算法，使用公钥加密、私钥解密。<br>
+                        密码：<code>rsa1977</code>
+                    </div>
+                    <div class="unlock-area">
+                        <input type="password" id="rsaUnlock" placeholder="输入解锁密码..." class="unlock-input">
+                        <button class="unlock-btn" onclick="unlockItem('rsaUnlock', 'rsaContent', 'rsaError', 'rsa1977')">🔓 解锁</button>
+                        <span class="unlock-error" id="rsaError"></span>
+                    </div>
+                    <div class="locked-content" id="rsaContent">
+                        <p>🔑 <strong>RSA 非对称加密</strong></p>
+                        <p style="font-size:0.9rem; color:rgba(220,210,240,0.55);">
+                            • 诞生于 1977 年，以三位发明者命名<br>
+                            • 核心：大整数分解的数学难题<br>
+                            • 应用：数字签名、安全通信 (HTTPS)<br><br>
+                            🧮 密钥长度通常为 2048 位或更高，安全性依赖于数学计算的复杂性。
+                        </p>
+                        <a href="https://zh.wikipedia.org/wiki/RSA%E5%8A%A0%E5%AF%86%E6%BC%94%E7%AE%97%E6%B3%95" target="_blank" class="content-link">📖 深入了解 →</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ===== FAQ ===== -->
+        <div class="category-content" id="category-faq">
+
+            <div class="code-fold fade-in">
+                <div class="code-fold-header" onclick="toggleFold(this)">
+                    <div class="item-info">
+                        <span class="item-icon">❓</span>
+                        <div class="item-meta">
+                            <div class="item-title">什么是"哈希"？</div>
+                            <div class="item-status">需要密码解锁</div>
+                        </div>
+                    </div>
+                    <span class="lock-badge">🔒</span>
+                    <span class="fold-arrow">▾</span>
+                </div>
+                <div class="code-fold-body">
+                    <div class="content-desc">
+                        哈希（Hash）是一种将任意长度的数据"压缩"成固定长度"指纹"的技术。<br>
+                        密码：<code>hash123</code>
+                    </div>
+                    <div class="unlock-area">
+                        <input type="password" id="hashUnlock" placeholder="输入解锁密码..." class="unlock-input">
+                        <button class="unlock-btn" onclick="unlockItem('hashUnlock', 'hashContent', 'hashError', 'hash123')">🔓 解锁</button>
+                        <span class="unlock-error" id="hashError"></span>
+                    </div>
+                    <div class="locked-content" id="hashContent">
+                        <p>🔎 <strong>哈希函数</strong></p>
+                        <p style="font-size:0.9rem; color:rgba(220,210,240,0.55);">
+                            • 输入任意长度 → 输出固定长度（如 SHA-256 输出 256 位）<br>
+                            • 单向性：无法从哈希值反推原文<br>
+                            • 应用：密码存储、文件完整性校验<br><br>
+                            ⚡ 常见算法：MD5、SHA-1、SHA-256、SM3（国密）/（前两个已不安全）
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-fold fade-in">
+                <div class="code-fold-header" onclick="toggleFold(this)">
+                    <div class="item-info">
+                        <span class="item-icon">🛡️</span>
+                        <div class="item-meta">
+                            <div class="item-title">密码为什么要"加盐"？</div>
+                            <div class="item-status">需要密码解锁</div>
+                        </div>
+                    </div>
+                    <span class="lock-badge">🔒</span>
+                    <span class="fold-arrow">▾</span>
+                </div>
+                <div class="code-fold-body">
+                    <div class="content-desc">
+                        "加盐"是在密码哈希过程中添加随机数据，防止彩虹表攻击。<br>
+                        密码：<code>salt2027</code>
+                    </div>
+                    <div class="unlock-area">
+                        <input type="password" id="saltUnlock" placeholder="输入解锁密码..." class="unlock-input">
+                        <button class="unlock-btn" onclick="unlockItem('saltUnlock', 'saltContent', 'saltError', 'salt2026')">🔓 解锁</button>
+                        <span class="unlock-error" id="saltError"></span>
+                    </div>
+                    <div class="locked-content" id="saltContent">
+                        <p>🧂 <strong>密码加盐 (Salting)</strong></p>
+                        <p style="font-size:0.9rem; color:rgba(220,210,240,0.55);">
+                            • 盐是随机生成的字符串，每个用户不同<br>
+                            • 存储方式：<code>hash(密码 + 盐)</code><br>
+                            • 即使两个人密码相同，哈希值也不同<br><br>
+                            🛡️ 加盐可有效防御预计算攻击（彩虹表）
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ===== 好用推荐 ===== -->
+        <div class="category-content" id="category-tools">
+
+            <div class="code-fold fade-in">
+                <div class="code-fold-header" onclick="toggleFold(this)">
+                    <div class="item-info">
+                        <span class="item-icon">🔧</span>
+                        <div class="item-meta">
+                            <div class="item-title">密码管理工具推荐</div>
+                            <div class="item-status">需要密码解锁</div>
+                        </div>
+                    </div>
+                    <span class="lock-badge">🔒</span>
+                    <span class="fold-arrow">▾</span>
+                </div>
+                <div class="code-fold-body">
+                    <div class="content-desc">
+                        推荐几款好用的密码管理工具。<br>
+                        密码：<code>pm2026</code>
+                    </div>
+                    <div class="unlock-area">
+                        <input type="password" id="pmUnlock" placeholder="输入解锁密码..." class="unlock-input">
+                        <button class="unlock-btn" onclick="unlockItem('pmUnlock', 'pmContent', 'pmError', 'pm2026')">🔓 解锁</button>
+                        <span class="unlock-error" id="pmError"></span>
+                    </div>
+                    <div class="locked-content" id="pmContent">
+                        <p>🛠️ <strong>推荐工具（有些还没尝试过哈</strong></p>
+                        <p style="font-size:0.9rem; color:rgba(220,210,240,0.55);">
+                            • <strong>Bitwarden</strong> — 开源、免费、跨平台，支持自托管<br>
+                            • <strong>1Password</strong> — 界面优雅，功能强大<br>
+                            • <strong>KeePassXC</strong> — 本地存储，完全离线，安全性极高<br>
+                            • <strong>Google 密码管理器</strong> — 简单易用，集成在 Chrome 中<br><br>
+                                            </p>
+                        <a href="https://bitwarden.com/" target="_blank" class="content-link">🚀 访问 Bitwarden →</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-fold fade-in">
+                <div class="code-fold-header" onclick="toggleFold(this)">
+                    <div class="item-info">
+                        <span class="item-icon">📚</span>
+                        <div class="item-meta">
+                            <div class="item-title">密码学学习资源</div>
+                            <div class="item-status">需要密码解锁</div>
+                        </div>
+                    </div>
+                    <span class="lock-badge">🔒</span>
+                    <span class="fold-arrow">▾</span>
+                </div>
+                <div class="code-fold-body">
+                    <div class="content-desc">
+                        想深入学习密码学？这些资源值得收藏。<br>
+                        密码：<code>crypto2026</code>
+                    </div>
+                    <div class="unlock-area">
+                        <input type="password" id="cryptoUnlock" placeholder="输入解锁密码..." class="unlock-input">
+                        <button class="unlock-btn" onclick="unlockItem('cryptoUnlock', 'cryptoContent', 'cryptoError', 'crypto2026')">🔓 解锁</button>
+                        <span class="unlock-error" id="cryptoError"></span>
+                    </div>
+                    <div class="locked-content" id="cryptoContent">
+                        <p>📖 <strong>推荐资源</strong></p>
+                        <p style="font-size:0.9rem; color:rgba(220,210,240,0.55);">
+                            • 📕 《图解密码技术》— 入门必读，通俗易懂<br>
+                            • 📘 《密码学导论》— 系统学习，适合进阶<br>
+                            • 🌐 <strong>CryptoHack</strong> — 交互式密码学挑战平台<br>
+                            • 🎓 <strong>菜鸟教程</strong> — 免费在线课程<br><br>
+                            🧩 小测验答案：1-B, 2-A, 3-A
+                        </p>
+                        <a href="https://cryptohack.org/" target="_blank" class="content-link">🚀 访问 CryptoHack →</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ==========================================================
+              留言区
+             ========================================================== -->
+        <div class="message-section fade-in">
+            <div class="section-title">
+                <span class="code-bracket">&lt;</span> 交流 · 建议 <span class="code-bracket">/&gt;</span>
+            </div>
+            <div class="section-desc">/* 有什么疑问或建议，欢迎留言 */</div>
+
+            <form class="message-form" id="messageForm">
+                <div class="form-row">
+                    <input type="text" id="msgName" placeholder="你的名字 / 代号" required>
+                    <input type="text" id="msgTag" placeholder="主题标签（如：密码学）">
+                </div>
+                <textarea id="msgContent" placeholder="写下你的疑问、建议或想交流的内容..." required></textarea>
+                <button type="submit" class="submit-btn">&lt; 发布 /&gt;</button>
+            </form>
+
+            <div class="message-list">
+                <div class="list-title">/* 已有交流 */</div>
+                <div class="message-item">
+                    <span class="msg-name">CryptoLearner</span>
+                    <span class="msg-time">2026-08-04 20:15</span>
+                    <div class="msg-content">有没有推荐的密码学入门书籍？</div>
+                </div>
+
+                <div class="message-item">
+                    <span class="msg-name">ByteWalker</span>
+                    <span class="msg-time">2026-08-03 19:47</span>
+                    <div class="msg-content">小游戏的密码可以自定义吗？想给朋友设置一个专属谜题。</div>
+                </div>
+            </div>
+        </div>
+        <a href="Yan2684.html" class="back-link fade-in">← 返回主页</a>
+            /* 0x0A 0x06 0x12 · 在代码的世界里探索密码的奥秘 */
+        </div>
+
+    </div>
+
+     <script>
+        // ==========================================================
+        // 1. 01 字符串流
+        // ==========================================================
+        function createBinaryFlow() {
+            const container = document.getElementById('binaryFlow');
+            const columnCount = 12;
+            const chars = ['0', '1'];
+
+            for (let i = 0; i < columnCount; i++) {
+                const column = document.createElement('div');
+                column.className = 'binary-column';
+                
+                const length = 15 + Math.floor(Math.random() * 20);
+                let text = '';
+                for (let j = 0; j < length; j++) {
+                    const char = chars[Math.floor(Math.random() * chars.length)];
+                    if (Math.random() > 0.7) {
+                        text += `<span class="highlight">${char}</span>`;
+                    } else {
+                        text += char;
+                    }
+                }
+                column.innerHTML = text;
+                
+                const left = 2 + (i * 8) + Math.random() * 3;
+                column.style.left = left + '%';
+                column.style.fontSize = (12 + Math.random() * 8) + 'px';
+                column.style.animationDuration = (18 + Math.random() * 20) + 's';
+                column.style.animationDelay = (Math.random() * 10) + 's';
+                column.style.opacity = 0.3 + Math.random() * 0.4;
+                
+                container.appendChild(column);
+            }
+        }
+
+        createBinaryFlow();
+
+            const tabs = document.querySelectorAll('.category-tab');
+        const contents = {
+            games: document.getElementById('category-games'),
+            crypto: document.getElementById('category-crypto'),
+            faq: document.getElementById('category-faq'),
+            tools: document.getElementById('category-tools')
+        };
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                tabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                const category = this.dataset.category;
+                Object.keys(contents).forEach(key => {
+                    contents[key].classList.toggle('active', key === category);
+                });
+            });
+        });
+
+           function toggleFold(header) {
+            const body = header.nextElementSibling;
+            const arrow = header.querySelector('.fold-arrow');
+            
+            if (body.classList.contains('open')) {
+                body.classList.remove('open');
+                arrow.classList.remove('open');
+            } else {
+                body.classList.add('open');
+                arrow.classList.add('open');
+            }
+        }
+
+        // ==========================================================
+       
+        function unlockItem(inputId, contentId, errorId, password) {
+            const input = document.getElementById(inputId);
+            const content = document.getElementById(contentId);
+            const error = document.getElementById(errorId);
+            const userInput = input.value.trim();
+
+            if (!userInput) {
+                error.textContent = '❌ 请输入密码';
+                return;
+            }
+
+            if (userInput === password) {
+                content.classList.add('show');
+                error.textContent = '✅ 解锁成功！';
+                error.style.color = 'rgba(120, 220, 180, 0.35)';
+                input.disabled = true;
+                input.style.borderColor = 'rgba(120, 220, 180, 0.10)';
+                const btn = input.nextElementSibling;
+                if (btn && btn.classList.contains('unlock-btn')) {
+                    btn.textContent = '✅ 已解锁';
+                    btn.style.opacity = '0.3';
+                    btn.style.cursor = 'default';
+                }
+            } else {
+                error.textContent = '❌ 密码错误，请重试';
+                error.style.color = 'rgba(220, 120, 140, 0.45)';
+                input.value = '';
+                input.focus();
+                input.disabled = true;
+                setTimeout(() => { input.disabled = false; }, 600);
+            }
+        }
+
+        document.querySelectorAll('.unlock-input').forEach(input => {
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    const btn = this.nextElementSibling;
+                    if (btn && btn.classList.contains('unlock-btn')) {
+                        btn.click();
+                    }
+                }
+            });
+        });
+
+        // ==========================================================
+          let secretNumber = Math.floor(Math.random() * 100) + 1;
+        let attempts = 0;
+
+        function guessNumber() {
+            const result = document.getElementById('gameResult');
+            const guess = prompt('🔢 猜一个 1-100 之间的数字：');
+            
+            if (guess === null) return;
+            
+            const num = parseInt(guess);
+            if (isNaN(num) || num < 1 || num > 100) {
+                result.textContent = '⚠️ 请输入 1-100 之间的有效数字';
+                result.style.color = 'rgba(220, 120, 140, 0.35)';
+                return;
+            }
+            
+            attempts++;
+            
+            if (num === secretNumber) {
+                result.textContent = `🎉 恭喜！你用了 ${attempts} 次猜中了数字 ${secretNumber}！`;
+                result.style.color = 'rgba(120, 220, 180, 0.45)';
+                secretNumber = Math.floor(Math.random() * 100) + 1;
+                attempts = 0;
+            } else if (num < secretNumber) {
+                result.textContent = `📈 ${num} 太低了，再试试 (已猜 ${attempts} 次)`;
+                result.style.color = 'rgba(220, 210, 240, 0.30)';
+            } else {
+                result.textContent = `📉 ${num} 太高了，再试试 (已猜 ${attempts} 次)`;
+                result.style.color = 'rgba(220, 210, 240, 0.30)';
+            }
+        }
+
+        // ==========================================================
+    
+        document.getElementById('messageForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('msgName').value.trim() || '匿名';
+            const tag = document.getElementById('msgTag').value.trim();
+            const content = document.getElementById('msgContent').value.trim();
+            
+            if (!content) {
+                alert('❌ 请写下你想交流的内容');
+                return;
+            }
+            
+            const now = new Date();
+            const timeStr = now.getFullYear() + '-' + 
+                            String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                            String(now.getDate()).padStart(2, '0') + ' ' +
+                            String(now.getHours()).padStart(2, '0') + ':' +
+                            String(now.getMinutes()).padStart(2, '0');
+            
+            const list = document.querySelector('.message-list');
+            const newItem = document.createElement('div');
+            newItem.className = 'message-item';
+            
+            let displayName = name;
+            if (tag) displayName += ` · #${tag}`;
+            
+            newItem.innerHTML = `
+                <span class="msg-name">${escapeHtml(displayName)}</span>
+                <span class="msg-time">${timeStr}</span>
+                <div class="msg-content">${escapeHtml(content)}</div>
+            `;
+            
+            list.insertBefore(newItem, list.querySelector('.message-item'));
+            
+            document.getElementById('msgName').value = '';
+            document.getElementById('msgTag').value = '';
+            document.getElementById('msgContent').value = '';
+        });
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ==========================================================
+               (function() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: "0px 0px -20px 0px"
+            });
+
+            document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+        })();
+
+        console.log('💻 编程 · 密码学页面已加载（文字已调亮）');
+    </script>
+
+</body>
+</html>
